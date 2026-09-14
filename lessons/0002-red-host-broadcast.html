@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Redes Cisco · 02 · Red, host y broadcast</title>
+  <style>
+    :root{--ink:#172033;--muted:#61708a;--paper:#f7f9fc;--card:#fff;--accent:#2457d6;--soft:#eaf0ff;--line:#dbe3f0;--ok:#157347}
+    *{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.65 system-ui,-apple-system,Segoe UI,sans-serif}
+    main{max-width:880px;margin:auto;padding:32px 20px 64px}header{padding:28px 0 22px;border-bottom:1px solid var(--line)}.eyebrow{color:var(--accent);font-weight:700;letter-spacing:.08em;text-transform:uppercase;font-size:.78rem}h1{font-size:clamp(2rem,6vw,3.5rem);line-height:1.05;margin:.35rem 0 1rem}h2{margin-top:0;font-size:1.45rem}.lead{font-size:1.12rem;color:var(--muted)}section{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:24px;margin:22px 0;box-shadow:0 6px 20px #1a2b4d0b}.tag{display:inline-block;background:var(--soft);color:var(--accent);border-radius:999px;padding:2px 10px;font-size:.8rem;font-weight:700}code{background:#eef2f7;border-radius:5px;padding:2px 6px;color:#162b65}pre{background:#111827;color:#e7edf7;border-radius:10px;padding:15px;overflow:auto}.diagram{font-family:ui-monospace,monospace;text-align:center;background:#f1f5fb;padding:16px;border-radius:10px;margin:14px 0}table{width:100%;border-collapse:collapse;margin:14px 0}th,td{text-align:left;border-bottom:1px solid var(--line);padding:9px}th{color:var(--muted);font-size:.86rem}.check{border-left:4px solid var(--accent);background:#f5f8ff;padding:15px 17px;margin-top:18px}.answer{display:none;color:var(--ok);font-weight:650;margin-top:8px}.answer.show{display:block}button{border:1px solid var(--accent);background:white;color:var(--accent);border-radius:8px;padding:8px 12px;font-weight:650;cursor:pointer}footer{color:var(--muted);font-size:.92rem;margin-top:28px}
+  </style>
+</head>
+<body><main>
+  <header><div class="eyebrow">Redes Cisco · PC1 · Lección 02</div><h1>Red, hosts y broadcast</h1><p class="lead">Aplicaremos lo aprendido a <code>192.168.10.25/24</code>.</p></header>
+
+  <section><span class="tag">Segmento 1 · Corrección</span><h2>Tu respuesta está bien</h2><p>En <code>192.168.10.25/24</code>:</p><pre>192.168.10 = parte de red
+25          = parte de host</pre><p>Pero cuando hablamos de la <strong>dirección de red completa</strong>, no escribimos solo <code>192.168.10</code>. También debemos poner en cero la parte de host:</p><pre>Dirección de red: 192.168.10.0</pre></section>
+
+  <section><span class="tag">Segmento 2 · Dirección de red</span><h2>¿Por qué termina en cero?</h2><p>La dirección de red representa a toda la red, no a un dispositivo individual. Por eso todos los bits de host se colocan en cero.</p><pre>IP:       192.168.10.25
+Máscara:  255.255.255.0
+Red:      192.168.10.0</pre><p>En una máscara <code>/24</code>, el último octeto pertenece a los hosts. Para obtener la red, reemplazamos ese octeto por <code>0</code>.</p><div class="check"><strong>Comprueba:</strong> ¿cuál es la dirección de red de <code>192.168.10.80/24</code>?<br><button onclick="showAnswer('a1')">Ver respuesta</button><div id="a1" class="answer">192.168.10.0</div></div></section>
+
+  <section><span class="tag">Segmento 3 · Hosts utilizables</span><h2>¿Qué direcciones pueden usar los dispositivos?</h2><p>En una red <code>/24</code>, el último octeto puede ir de <code>0</code> a <code>255</code>. Sin embargo, no todas las direcciones se asignan a dispositivos.</p><table><thead><tr><th>Tipo</th><th>Dirección</th><th>Uso</th></tr></thead><tbody><tr><td>Red</td><td><code>192.168.10.0</code></td><td>Identifica la red.</td></tr><tr><td>Primer host</td><td><code>192.168.10.1</code></td><td>Primer dispositivo posible.</td></tr><tr><td>Último host</td><td><code>192.168.10.254</code></td><td>Último dispositivo posible.</td></tr><tr><td>Broadcast</td><td><code>192.168.10.255</code></td><td>Comunica con todos los hosts.</td></tr></tbody></table><p>Por eso el rango de hosts utilizables es:</p><pre>192.168.10.1 – 192.168.10.254</pre><div class="check"><strong>Comprueba:</strong> ¿se puede asignar normalmente <code>192.168.10.0</code> a una PC?<br><button onclick="showAnswer('a2')">Ver respuesta</button><div id="a2" class="answer">No. Es la dirección de red.</div></div></section>
+
+  <section><span class="tag">Segmento 4 · Broadcast</span><h2>¿Qué es el broadcast?</h2><p>El broadcast es la última dirección del bloque. Se usa para enviar información a todos los hosts de esa red.</p><pre>Red:        192.168.10.0
+Hosts:      192.168.10.1 – 192.168.10.254
+Broadcast:  192.168.10.255</pre><p>En una <code>/24</code>, el broadcast termina en <code>255</code> porque el último octeto tiene todos sus bits de host en uno.</p><div class="check"><strong>Comprueba:</strong> ¿cuál es el broadcast de <code>192.168.10.25/24</code>?<br><button onclick="showAnswer('a3')">Ver respuesta</button><div id="a3" class="answer">192.168.10.255</div></div></section>
+
+  <section><span class="tag">Segmento 5 · Resumen</span><h2>Resultado completo</h2><table><tbody><tr><th>IP analizada</th><td><code>192.168.10.25/24</code></td></tr><tr><th>Máscara</th><td><code>255.255.255.0</code></td></tr><tr><th>Dirección de red</th><td><code>192.168.10.0</code></td></tr><tr><th>Primer host</th><td><code>192.168.10.1</code></td></tr><tr><th>Último host</th><td><code>192.168.10.254</code></td></tr><tr><th>Broadcast</th><td><code>192.168.10.255</code></td></tr></tbody></table><p><strong>Idea clave:</strong> en una <code>/24</code>, los tres primeros octetos identifican la red. El último octeto va de <code>0</code> a <code>255</code>: <code>0</code> es red, <code>1–254</code> son hosts y <code>255</code> es broadcast.</p></section>
+
+  <section><span class="tag">Mini práctica</span><h2>Intenta antes de continuar</h2><p>Para <code>192.168.20.40/24</code>, escribe:</p><ol><li>Dirección de red</li><li>Primer host</li><li>Último host</li><li>Broadcast</li></ol><p>Cuando respondas, pasaremos al siguiente concepto: qué cambia cuando la máscara ya no es <code>/24</code>, por ejemplo <code>/26</code>.</p></section>
+  <footer>Lección anterior: <a href="0001-fundamentos-de-redes.html">Fundamentos de redes</a> · Glosario: <a href="../reference/01-glosario-fundamentos.html">conceptos básicos</a></footer>
+</main><script>function showAnswer(id){document.getElementById(id).classList.add('show')}</script></body></html>

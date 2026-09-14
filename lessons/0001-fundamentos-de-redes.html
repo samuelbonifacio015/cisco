@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Redes Cisco · 01 · Fundamentos</title>
+  <style>
+    :root{--ink:#172033;--muted:#61708a;--paper:#f7f9fc;--card:#fff;--accent:#2457d6;--soft:#eaf0ff;--line:#dbe3f0;--ok:#157347}
+    *{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.65 system-ui,-apple-system,Segoe UI,sans-serif}
+    main{max-width:880px;margin:auto;padding:32px 20px 64px}header{padding:28px 0 22px;border-bottom:1px solid var(--line)}
+    .eyebrow{color:var(--accent);font-weight:700;letter-spacing:.08em;text-transform:uppercase;font-size:.78rem}h1{font-size:clamp(2rem,6vw,3.5rem);line-height:1.05;margin:.35rem 0 1rem}h2{margin-top:0;font-size:1.45rem}h3{font-size:1.05rem;margin-bottom:.35rem}.lead{font-size:1.12rem;color:var(--muted);max-width:690px}
+    section{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:24px;margin:22px 0;box-shadow:0 6px 20px #1a2b4d0b}.tag{display:inline-block;background:var(--soft);color:var(--accent);border-radius:999px;padding:2px 10px;font-size:.8rem;font-weight:700}
+    code{background:#eef2f7;border-radius:5px;padding:2px 6px;color:#162b65}pre{background:#111827;color:#e7edf7;border-radius:10px;padding:15px;overflow:auto}.diagram{font-family:ui-monospace,monospace;text-align:center;background:#f1f5fb;padding:16px;border-radius:10px;margin:14px 0}
+    table{width:100%;border-collapse:collapse;margin:14px 0}th,td{text-align:left;border-bottom:1px solid var(--line);padding:9px}th{color:var(--muted);font-size:.86rem}.check{border-left:4px solid var(--accent);background:#f5f8ff;padding:15px 17px;margin-top:18px}.answer{display:none;color:var(--ok);font-weight:650;margin-top:8px}.answer.show{display:block}button{border:1px solid var(--accent);background:white;color:var(--accent);border-radius:8px;padding:8px 12px;font-weight:650;cursor:pointer}footer{color:var(--muted);font-size:.92rem;margin-top:28px}
+  </style>
+</head>
+<body>
+<main>
+  <header>
+    <div class="eyebrow">Redes Cisco · PC1 · Lección 01</div>
+    <h1>Fundamentos: qué es una red, una IP y una máscara</h1>
+    <p class="lead">Objetivo: entender qué significa una dirección como <code>192.168.10.25/24</code> antes de resolver subnetting.</p>
+  </header>
+
+  <section id="mapa">
+    <span class="tag">Mapa de la lección</span>
+    <h2>La idea completa en una frase</h2>
+    <p>Una red conecta dispositivos. La <strong>IP</strong> identifica lógicamente a cada dispositivo y la <strong>máscara</strong> indica qué parte de esa IP representa la red y qué parte representa al dispositivo.</p>
+    <div class="diagram">Red → conecta dispositivos → IP identifica → máscara separa red y host</div>
+  </section>
+
+  <section id="segmento-1">
+    <span class="tag">Segmento 1 · Red</span>
+    <h2>¿Qué es una red?</h2>
+    <p>Una red es un conjunto de dispositivos que pueden comunicarse mediante un medio y unas reglas. El medio puede ser cable de cobre, fibra óptica o conexión inalámbrica.</p>
+    <div class="diagram">PC1 ─── Switch ─── PC2</div>
+    <p>En este ejemplo, el switch conecta los dispositivos dentro de la misma red local.</p>
+    <div class="check"><strong>Comprueba:</strong> ¿una red sirve para aislar dispositivos o para permitir su comunicación?<br><button onclick="showAnswer('a1')">Ver respuesta</button><div id="a1" class="answer">Permitir su comunicación.</div></div>
+  </section>
+
+  <section id="segmento-2">
+    <span class="tag">Segmento 2 · Dispositivos</span>
+    <h2>¿Qué función cumple cada dispositivo?</h2>
+    <table><thead><tr><th>Dispositivo</th><th>Función básica</th></tr></thead><tbody>
+      <tr><td>Host</td><td>Equipo final: PC, servidor, celular o impresora.</td></tr>
+      <tr><td>Switch</td><td>Conecta equipos dentro de una LAN.</td></tr>
+      <tr><td>Router</td><td>Conecta redes diferentes.</td></tr>
+      <tr><td>Access Point</td><td>Conecta dispositivos mediante Wi-Fi.</td></tr>
+    </tbody></table>
+    <p><strong>Regla corta:</strong> switch dentro de la red; router entre redes.</p>
+    <div class="check"><strong>Comprueba:</strong> si una PC necesita comunicarse con otra red, ¿qué dispositivo permite salir de su red local?<br><button onclick="showAnswer('a2')">Ver respuesta</button><div id="a2" class="answer">El router, normalmente usando el gateway predeterminado.</div></div>
+  </section>
+
+  <section id="segmento-3">
+    <span class="tag">Segmento 3 · Dirección IP</span>
+    <h2>¿Qué es una IPv4?</h2>
+    <p>Una IPv4 es una dirección lógica. Identifica un dispositivo dentro de una red.</p>
+    <pre>192.168.10.25</pre>
+    <p>Está formada por cuatro octetos. Cada octeto puede tener un valor entre <code>0</code> y <code>255</code>.</p>
+    <p>La IP tiene dos partes:</p>
+    <ul><li><strong>Parte de red:</strong> identifica el grupo.</li><li><strong>Parte de host:</strong> identifica al dispositivo dentro del grupo.</li></ul>
+    <div class="check"><strong>Comprueba:</strong> ¿la IP identifica físicamente el cable o lógicamente el dispositivo?<br><button onclick="showAnswer('a3')">Ver respuesta</button><div id="a3" class="answer">Lógicamente el dispositivo.</div></div>
+  </section>
+
+  <section id="segmento-4">
+    <span class="tag">Segmento 4 · Máscara</span>
+    <h2>¿Qué significa <code>/24</code>?</h2>
+    <p>El prefijo <code>/24</code> significa que los primeros 24 bits de la dirección pertenecen a la red. Los 8 bits restantes pertenecen a los hosts.</p>
+    <pre>IP:       192.168.10.25
+Máscara:  255.255.255.0
+Prefijo:  /24
+
+Red:      192.168.10
+Host:                 25</pre>
+    <p>Por tanto, en <code>192.168.10.25/24</code>:</p>
+    <ul><li><code>192.168.10</code> identifica la red.</li><li><code>25</code> identifica al host.</li></ul>
+    <div class="check"><strong>Comprueba:</strong> en <code>192.168.10.25/24</code>, ¿qué parte corresponde al host?<br><button onclick="showAnswer('a4')">Ver respuesta</button><div id="a4" class="answer">El último octeto: <code>25</code>.</div></div>
+  </section>
+
+  <section id="segmento-5">
+    <span class="tag">Segmento 5 · Subred</span>
+    <h2>¿Qué es una subred?</h2>
+    <p>Una subred es una división de una red grande en redes más pequeñas. Cada subred tendrá una dirección de red, hosts y un broadcast.</p>
+    <p>Ejemplo conceptual:</p>
+    <pre>Red grande: 192.168.10.0/24
+Subredes:   192.168.10.0/26
+            192.168.10.64/26
+            192.168.10.128/26
+            192.168.10.192/26</pre>
+    <p>Todavía no calcularemos estos rangos. Primero necesitamos dominar red, host y máscara. El siguiente segmento será: <strong>dirección de red, hosts utilizables y broadcast</strong>.</p>
+  </section>
+
+  <section id="resumen">
+    <span class="tag">Cierre</span>
+    <h2>Resumen de hoy</h2>
+    <ol><li>Una red permite que los dispositivos se comuniquen.</li><li>El switch conecta equipos dentro de una LAN.</li><li>El router conecta redes diferentes.</li><li>La IP identifica lógicamente un dispositivo.</li><li>La máscara separa la parte de red y la parte de host.</li><li><code>/24</code> significa 24 bits de red y 8 bits de host.</li></ol>
+    <p>Si algo no quedó claro, pregunta por el segmento concreto y lo repetimos con otro ejemplo.</p>
+  </section>
+
+  <footer>Referencia de estudio: material del curso SEM02 Protocolos y Redes y SEM03 Direccionamiento IPv4, consolidado en <a href="../reference/curso.md">curso.md</a>.</footer>
+</main>
+<script>function showAnswer(id){document.getElementById(id).classList.add('show')}</script>
+</body>
+</html>
