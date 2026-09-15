@@ -86,6 +86,16 @@ Desde `/24`, 2 subredes = `/25`, 4 = `/26`, 8 = `/27`, 16 = `/28`, 32 = `/29`, 6
 
 VLSM usa tamaños distintos. Ordena los requisitos de mayor a menor, elige la máscara mínima y asigna sin superponer. Ejemplo en `192.168.1.0/24`: 100 hosts → `/25` (`.0–.127`), 50 → `/26` (`.128–.191`), 20 → `/27` (`.192–.223`), 10 → `/28` (`.224–.239`); sobra desde `.240`.
 
+### Práctica de IP padre y FLSM
+
+Cuando el ejercicio entregue una IP padre y varias áreas, y la práctica se resuelva con FLSM, la máscara padre y la máscara de las subredes cumplen funciones distintas:
+
+- `172.69.0.0/22` es la red padre entregada por el profesor. Su máscara es `255.255.252.0`, con 22 bits de red y 10 bits de host, y su rango va de `172.69.0.0` a `172.69.3.255`.
+- La máscara hija se calcula con la mayor necesidad de hosts y se repite en todos los segmentos. Para Marketing, que necesita 112 hosts, se requieren 7 bits de host: `2^7-2=126`; por eso la máscara FLSM es `/25`, `255.255.255.128`.
+- Al pasar de `/22` a `/25` se toman 3 bits prestados: `2^3=8` subredes iguales. Si la topología necesita seis, se pueden asignar `172.69.0.0/25`, `172.69.0.128/25`, `172.69.1.0/25`, `172.69.1.128/25`, `172.69.2.0/25` y `172.69.2.128/25`; quedan dos bloques disponibles.
+
+No confundas este procedimiento con VLSM: en FLSM todas las áreas usan `/25`, aunque las áreas pequeñas desperdicien direcciones. Solo VLSM cambia la máscara por área (`/25`, `/26`, `/27`, `/29` o `/30`) según sus hosts requeridos.
+
 ## Medios y tipos de red
 
 Cobre transmite impulsos eléctricos y su señal sufre atenuación al aumentar la distancia. Fibra óptica transmite pulsos de luz y resiste interferencias electromagnéticas. Inalámbrico transmite ondas electromagnéticas; WLAN usa un medio compartido y puede sufrir interferencias y límites de cobertura.

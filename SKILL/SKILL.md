@@ -49,6 +49,15 @@ Para diseñar subredes, distingue siempre:
 - Cantidad de subredes iguales: `subredes = 2^s`, donde `s = prefijo nuevo - prefijo original`.
 - FLSM usa subredes del mismo tamaño. VLSM ordena necesidades de mayor a menor, asigna la máscara mínima a cada una y evita solapamientos.
 
+### Convención FLSM de la práctica actual
+
+Cuando un ejercicio entregue una IP padre y varias cantidades de hosts, pero no indique VLSM, resuélvelo por defecto con FLSM: calcula la máscara común a partir de la mayor demanda y úsala en todas las subredes. Mantén separadas estas dos capas:
+
+- La IP y máscara padre son el bloque original y no se reemplazan. Por ejemplo, `172.69.0.0/22` conserva `255.255.252.0` y abarca `172.69.0.0–172.69.3.255`.
+- La máscara hija es la que se configura en cada segmento. Para 112 hosts, `h=7`, porque `2^7-2=126`; eso produce `/25` (`255.255.255.128`). En FLSM, los segmentos menores también usan `/25`; no reduzcas sus máscaras a `/26`, `/27`, `/29` o `/30` salvo que el enunciado pida VLSM.
+
+En el caso de `172.69.0.0/22` con necesidades `112, 60, 30, 5, 2 y 2`, `/25` toma 3 bits prestados, crea 8 bloques iguales y permite usar 6. Las redes consecutivas pueden ser `172.69.0.0/25`, `172.69.0.128/25`, `172.69.1.0/25`, `172.69.1.128/25`, `172.69.2.0/25` y `172.69.2.128/25`; quedan dos bloques libres. No presentes esta tabla como VLSM: es FLSM válido, aunque desperdicia direcciones en las áreas pequeñas.
+
 ## Redes, capas y comunicación
 
 Explica la diferencia entre IP lógica de capa 3 y MAC física/de enlace de capa 2. En la misma red, la primera trama usa la MAC del destino. En otra red, usa la MAC del gateway predeterminado; la IP de destino sigue siendo la del destino final. Normalmente la IP permanece extremo a extremo y la MAC cambia en cada salto; NAT es la excepción relevante.
