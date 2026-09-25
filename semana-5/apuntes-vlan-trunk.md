@@ -127,3 +127,87 @@ Dentro de `(config)#` los `show` llevan `do` delante: `do show vlan brief`.
 - Ver puertos en los cables: **Options → Preferences → Interface → Always Show Port Labels in Logical Workspace**. O dejar el mouse sobre el cable.
 - Salir de `(config-if)#`: `exit` sube un nivel, `end` o `Ctrl+Z` vuelve a `Switch#`.
 - Abreviaturas: `sh vl br`, `int fa0/1`, `int range fa0/1 - 2`.
+
+---
+
+# Ejercicio 2 — Router-on-a-stick (4 pasos completos)
+
+Router 1841 conectado por su Fa0/0 al Fa0/23 del switch izquierdo. Los dos switches se unen por Fa0/1 ↔ Fa0/1.
+
+| Dispositivo | Puerto | Conecta a | VLAN | IP / gateway |
+|---|---|---|---|---|
+| Switch izq. | Fa0/2 | PC0 | 92 | 192.168.10.2 / gw 192.168.10.1 |
+| Switch izq. | Fa0/3 | PC1 | 93 | 192.168.20.2 / gw 192.168.20.1 |
+| Switch izq. | Fa0/1 | Switch der. | trunk | — |
+| Switch izq. | Fa0/23 | Router Fa0/0 | trunk | — |
+| Switch der. | Fa0/2 | PC2 | 93 | 192.168.20.3 / gw 192.168.20.1 |
+| Switch der. | Fa0/3 | PC3 | 92 | 192.168.10.3 / gw 192.168.10.1 |
+| Switch der. | Fa0/1 | Switch izq. | trunk | — |
+| Router | Fa0/0.92 | VLAN 92 | 92 | 192.168.10.1/24 |
+| Router | Fa0/0.93 | VLAN 93 | 93 | 192.168.20.1/24 |
+
+## Switch izquierdo (pasos 1–3)
+
+```
+enable
+configure terminal
+vlan 92
+vlan 93
+exit
+interface fa0/2
+ switchport mode access
+ switchport access vlan 92
+interface fa0/3
+ switchport mode access
+ switchport access vlan 93
+interface fa0/1
+ switchport mode trunk
+interface fa0/23
+ switchport mode trunk
+end
+```
+
+## Switch derecho (pasos 1–3)
+
+```
+enable
+configure terminal
+vlan 92
+vlan 93
+exit
+interface fa0/2
+ switchport mode access
+ switchport access vlan 93
+interface fa0/3
+ switchport mode access
+ switchport access vlan 92
+interface fa0/1
+ switchport mode trunk
+end
+```
+
+## Router (paso 4: router-on-a-stick)
+
+```
+enable
+configure terminal
+interface fa0/0
+ no shutdown
+interface fa0/0.92
+ encapsulation dot1Q 92
+ ip address 192.168.10.1 255.255.255.0
+interface fa0/0.93
+ encapsulation dot1Q 93
+ ip address 192.168.20.1 255.255.255.0
+end
+```
+
+- Una **subinterfaz** (`fa0/0.92`) por VLAN; `encapsulation dot1Q <vlan>` la asocia a esa VLAN; su IP es el gateway de la VLAN.
+- `no shutdown` va en la interfaz física `fa0/0`: los puertos del router vienen apagados (triángulos rojos en el cable).
+- El puerto del switch hacia el router debe ser **trunk**.
+
+## Verificación
+
+- `show ip interface brief` en el router → `Fa0/0`, `Fa0/0.92` y `Fa0/0.93` en `up/up`.
+- `show interfaces trunk` en el switch izquierdo → Fa0/1 y Fa0/23.
+- Ping PC0 → PC3 (misma VLAN) y PC0 → PC1 (inter-VLAN, pasa por el router). El primer ping puede perder un paquete por ARP.
