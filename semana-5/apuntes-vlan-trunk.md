@@ -2,6 +2,17 @@
 
 Ejercicio: `jueves/ejercicio 2026-2 router on stick v0.pkt`. Dos switches 2960 unidos por un cable, cada uno con PCs en dos VLANs.
 
+## Los 4 pasos globales (pizarra del profesor)
+
+| Paso | Qué | Dónde | Comando clave |
+|---|---|---|---|
+| 1 | Crear **todas** las VLANs en **TODOS** los switches | Cada switch | `vlan <id>` → `name <nombre>` |
+| 2 | Asignar los puertos **access** a sus VLANs, en **TODOS** los switches | Puertos hacia PCs | `switchport mode access` + `switchport access vlan <id>` |
+| 3 | Crear las interfaces **trunk** | Puertos entre switches (y hacia el router) | `switchport mode trunk` |
+| 4 | **Inter-VLAN** | Router o switch capa 3 | Router-on-a-stick **o** SW L3 |
+
+Los pasos 1–3 permiten el ping dentro de una misma VLAN. El paso 4 es lo que permite comunicar VLANs distintas.
+
 ## Topología del ejercicio
 
 | Switch | Puerto | Dispositivo | VLAN | IP |
