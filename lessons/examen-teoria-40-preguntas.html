@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Redes Cisco · Simulacro de teoría</title>
+  <style>
+    :root{--ink:#152033;--muted:#60708a;--paper:#f4f7fb;--card:#fff;--accent:#1459d9;--accent-2:#08a6a6;--soft:#eaf1ff;--line:#d9e2ef;--shadow:0 12px 30px #13294b12}
+    *{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 88% 0,#dff5f3 0,transparent 25rem),var(--paper);color:var(--ink);font:16px/1.55 system-ui,-apple-system,"Segoe UI",sans-serif}
+    main{max-width:960px;margin:auto;padding:28px 18px 72px}header{padding:30px 0 24px;border-bottom:1px solid var(--line)}
+    .eyebrow{color:var(--accent);font-size:.78rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase}.eyebrow::before{content:"◈";color:var(--accent-2);margin-right:8px}
+    h1{max-width:760px;margin:.5rem 0 .8rem;font:700 clamp(2.1rem,6vw,4.2rem)/.98 Georgia,serif;letter-spacing:-.04em}h2{margin:0 0 8px;font-size:1.05rem}p{margin:.5rem 0}.lead{max-width:700px;color:var(--muted);font-size:1.06rem}
+    .meta{display:flex;flex-wrap:wrap;gap:8px;margin-top:20px}.pill{background:var(--soft);border:1px solid #cedcff;border-radius:999px;color:#17429b;font-size:.86rem;font-weight:750;padding:5px 11px}
+    form{margin-top:24px}.question{background:var(--card);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);margin:16px 0;padding:20px 20px 18px}.question-head{align-items:baseline;display:flex;gap:10px;margin-bottom:13px}.number{color:var(--accent);font:700 1.1rem Georgia,serif;min-width:32px}.topic{color:var(--muted);font-size:.78rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase}
+    .option{border:1px solid var(--line);border-radius:11px;display:block;margin:9px 0;padding:11px 13px;transition:background .15s,border-color .15s,transform .15s}.option:hover{background:#f5f8ff;border-color:#9eb9ef;transform:translateX(2px)}.option input{accent-color:var(--accent);margin-right:9px}.option:has(input:checked){background:#edf4ff;border-color:#76a0eb}
+    .submit-wrap{background:linear-gradient(135deg,#112d62,#1459d9);border-radius:18px;color:#fff;margin-top:24px;padding:24px;position:sticky;bottom:14px;box-shadow:0 16px 34px #0e275044}.submit-wrap p{color:#dce8ff;margin:0 0 14px}.submit{background:#fff;border:0;border-radius:10px;color:#123c96;cursor:pointer;font-size:1rem;font-weight:800;padding:12px 18px}.submit:hover{background:#dff5f3}.submit:disabled{cursor:default;opacity:.85}
+    #result{display:none;background:#e9fbf5;border:1px solid #96dfc2;border-radius:14px;color:#0d573d;margin-top:16px;padding:14px 16px}.score{font:700 1.8rem Georgia,serif}.warning{color:#ffe3a6;font-size:.9rem;margin-top:8px}
+    footer{color:var(--muted);font-size:.9rem;margin-top:28px}@media (max-width:600px){main{padding:18px 12px 54px}.question{padding:17px 14px}.submit-wrap{position:static}}
+  </style>
+</head>
+<body>
+<main>
+  <header>
+    <div class="eyebrow">Redes y comunicaciones de datos · Simulacro</div>
+    <h1>Examen de teoría</h1>
+    <p class="lead">Responde las 40 preguntas como en un examen real. La página no mostrará si una opción está bien o mal mientras respondes; el resultado aparecerá únicamente al entregar.</p>
+    <div class="meta"><span class="pill">40 preguntas</span><span class="pill">0.5 puntos c/u</span><span class="pill">Máximo: 20.0 puntos</span><span class="pill">Solo teoría</span></div>
+  </header>
+
+  <form id="exam" novalidate></form>
+  <div class="submit-wrap">
+    <p>Cuando termines, entrega el examen para calcular tu puntaje final.</p>
+    <button class="submit" id="submit" type="button">Entregar examen y ver puntaje</button>
+    <div class="warning">Después de entregar no se modificarán ni se corregirán visualmente tus respuestas.</div>
+    <div id="result" aria-live="polite"></div>
+  </div>
+  <footer>Temario usado: fundamentos de redes, protocolos, modelos OSI/TCP-IP, encapsulación, medios, dispositivos, IPv4, gateway, NAT y subnetting conceptual.</footer>
+</main>
+<script>
+  const questions = [
+    {topic:'Protocolos',q:'¿Qué es un protocolo de comunicación?',o:['Un conjunto de reglas para que los dispositivos intercambien información.','Un cable especial para conectar dos routers.','Una dirección física asignada a una tarjeta de red.','Un programa que solo sirve para comprimir archivos.'],a:0},
+    {topic:'Protocolos',q:'¿Qué describe mejor la codificación de un mensaje?',o:['Convertir la información a una forma adecuada para transmitirla.','Eliminar siempre la dirección IP de destino.','Asignar una dirección MAC al router.','Dividir una LAN en dominios de broadcast.'],a:0},
+    {topic:'Protocolos',q:'¿Cuál es la función del control de flujo?',o:['Administrar la velocidad y la cantidad de información transmitida.','Traducir direcciones privadas a públicas.','Elegir el tipo de conector de fibra.','Identificar la dirección física del destino final.'],a:0},
+    {topic:'Entrega',q:'Una comunicación unicast es aquella que se dirige...',o:['De un emisor a un receptor específico.','De un emisor a todos los hosts del dominio.','De un emisor a un grupo de receptores.','Solo desde un router hacia un switch.'],a:0},
+    {topic:'Hosts',q:'¿Cuántos hosts utilizables puede tener una red /26?',o:['62.','64.','30.','126.'],a:0},
+    {topic:'Hosts',q:'¿Cuántos hosts utilizables puede tener una red /27?',o:['30.','32.','14.','62.'],a:0},
+    {topic:'Hosts',q:'¿Cuántos hosts utilizables puede tener una red /28?',o:['14.','16.','30.','6.'],a:0},
+    {topic:'Máscaras',q:'Para una LAN que necesita al menos 20 hosts utilizables, ¿qué prefijo y máscara son adecuados?',o:['/27 — 255.255.255.224.','/28 — 255.255.255.240.','/26 — 255.255.255.192.','/30 — 255.255.255.252.'],a:0},
+    {topic:'Máscaras',q:'Para una LAN que necesita al menos 50 hosts utilizables, ¿qué opción representa la máscara mínima adecuada?',o:['/26 — 255.255.255.192.','/27 — 255.255.255.224.','/25 — 255.255.255.128.','/28 — 255.255.255.240.'],a:0},
+    {topic:'Máscaras',q:'Para una LAN que necesita al menos 100 hosts utilizables, ¿qué prefijo mínimo debe elegirse?',o:['/25, porque permite 126 hosts utilizables.','/26, porque permite 100 hosts exactos.','/27, porque permite 128 hosts utilizables.','/24, porque una /25 no tiene hosts.'],a:0},
+    {topic:'OSI',q:'¿Cuál es la PDU típica de la capa de Transporte?',o:['Segmento.','Trama.','Paquete.','Bits.'],a:0},
+    {topic:'OSI',q:'¿Cuál es la responsabilidad principal de la capa de Red?',o:['Direccionamiento lógico y enrutamiento mediante IP.','Representación de señales y conectores.','Control de diálogo entre aplicaciones.','Direccionamiento físico mediante MAC.'],a:0},
+    {topic:'OSI',q:'¿Qué elemento se relaciona principalmente con la capa de Enlace de datos?',o:['La dirección MAC y la trama.','La dirección IP y el paquete.','El puerto TCP y el segmento.','La señal de luz y los bits.'],a:0},
+    {topic:'Hosts',q:'¿Cuántos hosts utilizables puede tener una red /29?',o:['6.','8.','14.','2.'],a:0},
+    {topic:'Subnetting',q:'Si una red /24 se divide en 4 subredes iguales, ¿qué prefijo resulta?',o:['/26.','/25.','/27.','/28.'],a:0},
+    {topic:'Encapsulación',q:'¿Cuál es el orden correcto de encapsulación, desde los datos de la aplicación?',o:['Datos → Segmento → Paquete → Trama → Bits.','Bits → Trama → Paquete → Segmento → Datos.','Datos → Paquete → Trama → Segmento → Bits.','Segmento → Datos → Paquete → Bits → Trama.'],a:0},
+    {topic:'Encapsulación',q:'¿Qué ocurre durante la desencapsulación?',o:['Cada capa recibe la PDU y retira o procesa la información que le corresponde.','Cada capa agrega otra dirección IP pública.','El router convierte todos los bits directamente en datos de usuario.','El switch reemplaza siempre la IP por una MAC permanente.'],a:0},
+    {topic:'Transporte',q:'¿Cuál característica corresponde a TCP?',o:['Es orientado a conexión y puede confirmar, ordenar y retransmitir datos.','No garantiza entrega y no establece conexión.','Solo funciona para direcciones MAC.','Se usa exclusivamente para transportar señales inalámbricas.'],a:0},
+    {topic:'Máscaras',q:'Para una LAN que necesita al menos 120 hosts utilizables, ¿qué máscara satisface el requisito con menor desperdicio?',o:['255.255.255.128 (/25), con 126 hosts utilizables.','255.255.255.192 (/26), con 62 hosts utilizables.','255.255.255.224 (/27), con 30 hosts utilizables.','255.255.255.0 (/24), con 120 hosts exactos.'],a:0},
+    {topic:'Máscaras',q:'Para un enlace punto a punto que necesita 2 hosts utilizables, ¿qué prefijo se usa normalmente?',o:['/30 — 255.255.255.252.','/29 — 255.255.255.248.','/28 — 255.255.255.240.','/31 — 255.255.255.254.'],a:0},
+    {topic:'Hosts',q:'¿Cuántos hosts utilizables puede tener una red /30?',o:['2.','4.','6.','30.'],a:0},
+    {topic:'Medios',q:'¿Cuál es una característica del cableado de cobre?',o:['Transmite mediante impulsos eléctricos y puede sufrir atenuación e interferencia.','Transmite únicamente pulsos de luz.','No tiene ninguna limitación de distancia.','No necesita conectores ni terminación.'],a:0},
+    {topic:'Medios',q:'¿Cuál es una ventaja importante de la fibra óptica?',o:['Es resistente a la interferencia electromagnética y adecuada para alta capacidad.','Es siempre más barata y sencilla de instalar que UTP.','Funciona únicamente dentro de una habitación.','Utiliza direcciones MAC en lugar de señales.'],a:0},
+    {topic:'Medios',q:'¿Qué caracteriza a un medio inalámbrico?',o:['Usa ondas electromagnéticas y ofrece movilidad.','Usa exclusivamente impulsos eléctricos por cobre.','No puede sufrir interferencias.','Requiere que todos los dispositivos estén conectados por cable.'],a:0},
+    {topic:'Medios',q:'¿Cuál diferencia entre UTP y STP es correcta?',o:['STP incorpora blindaje y ofrece mayor protección contra interferencias que UTP.','UTP siempre tiene más blindaje que STP.','STP no puede usar conectores RJ-45.','UTP transmite por luz y STP por microondas.'],a:0},
+    {topic:'Red y broadcast',q:'Para 192.168.10.130/26, ¿cuál es la pareja correcta de dirección de red y broadcast?',o:['Red 192.168.10.128; broadcast 192.168.10.191.','Red 192.168.10.64; broadcast 192.168.10.127.','Red 192.168.10.130; broadcast 192.168.10.192.','Red 192.168.10.0; broadcast 192.168.10.255.'],a:0},
+    {topic:'Red y hosts',q:'Para 192.168.10.130/26, ¿cuál es el rango de hosts utilizables?',o:['192.168.10.129 a 192.168.10.190.','192.168.10.128 a 192.168.10.191.','192.168.10.131 a 192.168.10.192.','192.168.10.1 a 192.168.10.126.'],a:0},
+    {topic:'Red y broadcast',q:'Para 10.2.4.20/26, ¿cuál es la dirección de red y cuál el broadcast?',o:['Red 10.2.4.0; broadcast 10.2.4.63.','Red 10.2.4.20; broadcast 10.2.4.26.','Red 10.2.4.64; broadcast 10.2.4.127.','Red 10.2.0.0; broadcast 10.2.255.255.'],a:0},
+    {topic:'Hosts',q:'Una red /22 tiene 10 bits para hosts. ¿Cuántas direcciones totales y hosts utilizables ofrece?',o:['1024 direcciones totales y 1022 hosts utilizables.','1022 direcciones totales y 1024 hosts utilizables.','512 direcciones totales y 510 hosts utilizables.','2048 direcciones totales y 2046 hosts utilizables.'],a:0},
+    {topic:'Dispositivos',q:'¿Cuál es la función principal de un switch?',o:['Conectar dispositivos dentro de una LAN usando principalmente direcciones MAC.','Conectar redes diferentes usando únicamente nombres de usuario.','Traducir siempre direcciones privadas a públicas.','Generar las señales de radio de un teléfono.'],a:0},
+    {topic:'Dispositivos',q:'¿Cuál es la función principal de un router?',o:['Conectar redes diferentes y tomar decisiones de reenvío usando direcciones IP.','Conectar únicamente periféricos por USB.','Crear documentos para las aplicaciones.','Reemplazar la máscara de todos los hosts.'],a:0},
+    {topic:'IPv4',q:'¿Cuántos bits tiene una dirección IPv4?',o:['32 bits, agrupados en cuatro octetos.','16 bits, agrupados en dos octetos.','64 bits, agrupados en ocho octetos.','128 bits, agrupados en cuatro octetos.'],a:0},
+    {topic:'IPv4',q:'¿Qué función cumple una máscara de subred?',o:['Distinguir la porción de red de la porción de host de una IPv4.','Identificar el fabricante de una tarjeta de red.','Cifrar el contenido de una trama Ethernet.','Indicar el puerto de una aplicación.'],a:0},
+    {topic:'IPv4',q:'¿Qué significa que una dirección tenga prefijo /24?',o:['Que 24 bits representan la porción de red y quedan 8 bits para hosts.','Que la dirección tiene 24 octetos.','Que existen exactamente 24 dispositivos conectados.','Que la IP pertenece necesariamente a una WAN.'],a:0},
+    {topic:'IPv4',q:'¿Qué representa la dirección de red?',o:['Identifica el bloque de red y tiene en cero la porción de host.','Es siempre el primer host asignable.','Es la dirección usada para todos los routers de Internet.','Identifica únicamente la tarjeta física del dispositivo.'],a:0},
+    {topic:'IPv4',q:'¿Cuál es el propósito de una dirección de broadcast?',o:['Enviar tráfico a todos los hosts del dominio de broadcast.','Enviar tráfico solo al servidor más cercano.','Identificar una red sin utilizar bits de host.','Traducir una IP privada a una pública.'],a:0},
+    {topic:'Gateway',q:'Si el destino está en otra red, ¿a qué MAC se dirige inicialmente la trama?',o:['A la MAC de la interfaz del gateway predeterminado.','A la MAC del destino final, aunque esté en otra red.','A la MAC de todos los switches de Internet.','A una MAC generada por la máscara de subred.'],a:0},
+    {topic:'NAT',q:'¿Qué hace normalmente NAT en el router de salida?',o:['Traduce una dirección IPv4 privada interna a una dirección pública.','Convierte una dirección MAC en una dirección de broadcast.','Divide una red en subredes iguales sin usar máscaras.','Cambia TCP por UDP en cada paquete.'],a:0},
+    {topic:'IPv4',q:'¿Cuál de estas opciones pertenece a un rango privado IPv4?',o:['10.0.0.0/8.','8.8.8.0/24.','1.1.1.0/24.','224.0.0.0/4.'],a:0},
+    {topic:'Subnetting',q:'¿Cuál diferencia describe correctamente FLSM y VLSM?',o:['FLSM usa subredes del mismo tamaño; VLSM puede usar tamaños distintos según la necesidad.','FLSM usa solo IPv6; VLSM usa solo IPv4.','FLSM no utiliza máscaras; VLSM utiliza únicamente máscaras /24.','FLSM conecta hosts; VLSM conecta exclusivamente routers.'],a:0}
+  ];
+
+  const exam = document.querySelector('#exam');
+  exam.innerHTML = questions.map((item, i) => { const order = [0, 1, 2, 3].map((_, j) => (j + i) % 4); return `<section class="question"><div class="question-head"><span class="number">${String(i + 1).padStart(2, '0')}</span><span class="topic">${item.topic} · 0.5 puntos</span></div><h2>${item.q}</h2>${order.map(j => `<label class="option"><input type="radio" name="q${i}" value="${j}"> ${item.o[j]}</label>`).join('')}</section>`; }).join('');
+
+  document.querySelector('#submit').addEventListener('click', () => {
+    const answers = exam.querySelectorAll('input:checked');
+    let correct = 0;
+    answers.forEach(input => { if (Number(input.value) === questions[Number(input.name.slice(1))].a) correct++; });
+    const points = correct * 0.5;
+    const result = document.querySelector('#result');
+    result.innerHTML = `<span class="score">${points.toFixed(1)} / 20.0 puntos</span><br>Examen entregado. Respondiste ${answers.length} de ${questions.length} preguntas.`;
+    result.style.display = 'block';
+    exam.querySelectorAll('input').forEach(input => { input.disabled = true; });
+    document.querySelector('#submit').disabled = true;
+    document.querySelector('#submit').textContent = 'Puntaje calculado';
+    result.scrollIntoView({behavior:'smooth', block:'center'});
+  });
+</script>
+</body>
+</html>
