@@ -9,6 +9,13 @@ Transcrito de las fotos de pizarra y la captura del usuario. La tarea 5 tiene un
 5. (3 pts) Crear la **VLAN 667 de nombre SuperBestias**, asignar las 2 PCs del paso 3 a esa VLAN y lograr **conectividad con el resto de las PCs de esa sucursal** ([...] la VLAN que se usa en esa sede).
 6. (3 pts) Agregar un **nuevo switch** en una sucursal, conectarlo con otro switch y crear las **interfaces trunk** relacionadas.
 
+## Formato de la evaluación (dicho por el profesor)
+
+- **Sustentación individual**: la evaluación es 100 % individual. Cada integrante expone cinco minutos de qué se hizo en el caso y luego responde preguntas propias sobre el caso.
+- Duración total estimada: media hora.
+- Las preguntas son sobre el proyecto del grupo: hay que conocerlo "al derecho y al revés" (diseño ↔ configuración, dato ↔ sede/VLAN/gateway), además de las 6 tareas de arriba.
+- Pendiente: el estudiante compartirá las preguntas exactas para incorporarlas.
+
 ## Rúbrica de simulacro (propuesta, no oficial)
 
 | Tarea | Pts | Evidencia que debe mostrar el estudiante |
