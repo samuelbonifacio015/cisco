@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Problema 01 · Router-on-a-stick con VLAN 667 · La Libertad</title>
+<style>
+  body{font:15px/1.5 system-ui,sans-serif;max-width:980px;margin:24px auto;padding:0 16px;color:#1c1c1c;background:#fafafa}
+  h1{margin-bottom:0} h2{margin-top:32px;border-bottom:2px solid #c8102e;padding-bottom:4px}
+  .meta{color:#666;margin-top:4px}
+  table{border-collapse:collapse;width:100%;margin:8px 0;background:#fff}
+  th,td{border:1px solid #ccc;padding:6px 8px;text-align:left;font-size:14px}
+  th{background:#eee} code,pre{font-family:Consolas,monospace}
+  pre{background:#1e1e1e;color:#e6e6e6;padding:12px;border-radius:6px;overflow:auto}
+  .pts{float:right;font-weight:700;color:#c8102e}
+  .warn{background:#fff3cd;border-left:4px solid #e0a800;padding:8px 12px}
+  details{background:#fff;border:1px solid #ccc;border-radius:6px;padding:8px 12px;margin:10px 0}
+  summary{cursor:pointer;font-weight:600}
+</style>
+</head>
+<body>
+<h1>Problema 01 · Router-on-a-stick con VLAN 667</h1>
+<p class="meta">Etapa 4 del roadmap · Sede: La Libertad · Método inter-VLAN: <b>router-on-a-stick</b> · Dificultad: media · Tiempo sugerido: 20 min</p>
+
+<h2>1. Escenario</h2>
+<p>En la sucursal La Libertad ya funciona la VLAN 21 (Ventas). Debes agregar dos PCs nuevas en la VLAN 667 (SuperBestias, red <code>192.168.69.0/24</code>) y lograr que se comuniquen con la PC de Ventas existente. Todos los valores necesarios están en este documento; <b>no hay datos que inventar ni pedir</b>.</p>
+
+<h2>2. Topología</h2>
+<pre>
+ PC Prueba1 ──Fa0/10┐
+                    ├─ SW_ACC1 (2960) ──Gi0/1 ══trunk══ Fa0/24── SW_CENTRAL (2960) ──Gi0/1 ══trunk══ Gi0/0── R_LIBERTAD (2911)
+ PC Prueba2 ──Fa0/11┘        │
+ PC_Ventas1 ──Fa0/1─────────┘
+</pre>
+
+<h2>3. Dispositivos y enlaces</h2>
+<table>
+<tr><th>Origen</th><th>Puerto</th><th>Destino</th><th>Puerto</th><th>Cable</th><th>Modo</th><th>VLAN / permitidas</th></tr>
+<tr><td>PC_Ventas1</td><td>Fa0</td><td>SW_ACC1</td><td>Fa0/1</td><td>Cobre directo</td><td>access</td><td>21</td></tr>
+<tr><td>PC Prueba1</td><td>Fa0</td><td>SW_ACC1</td><td>Fa0/10</td><td>Cobre directo</td><td>access</td><td>667</td></tr>
+<tr><td>PC Prueba2</td><td>Fa0</td><td>SW_ACC1</td><td>Fa0/11</td><td>Cobre directo</td><td>access</td><td>667</td></tr>
+<tr><td>SW_ACC1</td><td>Gi0/1</td><td>SW_CENTRAL</td><td>Fa0/24</td><td>Cobre cruzado*</td><td>trunk</td><td>all (o 21,667)</td></tr>
+<tr><td>SW_CENTRAL</td><td>Gi0/1</td><td>R_LIBERTAD</td><td>Gi0/0</td><td>Cobre directo</td><td>trunk</td><td>all (o 21,667)</td></tr>
+</table>
+<p class="meta">*Entre dos switches 2960 Packet Tracer acepta directo (Auto-MDIX); si el enlace queda rojo, cambia a cruzado.</p>
+
+<h2>4. Plan de VLANs y direccionamiento</h2>
+<table>
+<tr><th>VLAN</th><th>Nombre</th><th>Red</th><th>Máscara</th><th>Gateway</th><th>Hosts válidos</th></tr>
+<tr><td>21</td><td>Ventas (existente)</td><td>10.142.46.0/24</td><td>255.255.255.0</td><td>10.142.46.1</td><td>10.142.46.2 – 10.142.46.254</td></tr>
+<tr><td>667</td><td>SuperBestias (nueva)</td><td>192.168.69.0/24</td><td>255.255.255.0</td><td>192.168.69.1</td><td>192.168.69.2 – 192.168.69.254</td></tr>
+</table>
+
+<h2>5. Plan de PCs</h2>
+<table>
+<tr><th>PC</th><th>VLAN</th><th>IP</th><th>Máscara</th><th>Default Gateway</th></tr>
+<tr><td>PC_Ventas1</td><td>21</td><td>10.142.46.10</td><td>255.255.255.0</td><td>10.142.46.1</td></tr>
+<tr><td>PC Prueba1</td><td>667</td><td>192.168.69.10</td><td>255.255.255.0</td><td>192.168.69.1</td></tr>
+<tr><td>PC Prueba2</td><td>667</td><td>192.168.69.11</td><td>255.255.255.0</td><td>192.168.69.1</td></tr>
+</table>
+
+<h2>6. Sub-interfaces del router (R_LIBERTAD, Gi0/0)</h2>
+<table>
+<tr><th>Sub-interfaz</th><th>encapsulation</th><th>IP</th><th>Máscara</th><th>Estado</th></tr>
+<tr><td>Gi0/0</td><td>—</td><td>sin IP</td><td>—</td><td>no shutdown</td></tr>
+<tr><td>Gi0/0.21</td><td>dot1Q 21</td><td>10.142.46.1</td><td>255.255.255.0</td><td>ya configurada</td></tr>
+<tr><td>Gi0/0.667</td><td>dot1Q 667</td><td>192.168.69.1</td><td>255.255.255.0</td><td><b>por configurar</b></td></tr>
+</table>
+
+<h2>7. Tareas</h2>
+<ol>
+<li>En SW_ACC1 y SW_CENTRAL: crear la VLAN 667 con nombre <code>SuperBestias</code>. <span class="pts">1 pt</span></li>
+<li>Asignar Fa0/10 y Fa0/11 de SW_ACC1 a la VLAN 667 (access). <span class="pts">1 pt</span></li>
+<li>Configurar IP, máscara y gateway de Prueba1 y Prueba2 según la sección 5. <span class="pts">1 pt</span></li>
+<li>Verificar con <code>show vlan brief</code> en SW_ACC1. <span class="pts">1 pt</span></li>
+<li>Verificar los troncales y crear la sub-interfaz Gi0/0.667. <span class="pts">3 pts</span></li>
+<li>Probar conectividad: Prueba1 → PC_Ventas1 y Prueba1 → Prueba2. <span class="pts">3 pts</span></li>
+</ol>
+
+<h2>8. Verificación esperada</h2>
+<table>
+<tr><th>Dónde</th><th>Comando</th><th>Debe mostrar</th></tr>
+<tr><td>SW_ACC1</td><td><code>show vlan brief</code></td><td>667 SuperBestias active Fa0/10, Fa0/11; 21 con Fa0/1</td></tr>
+<tr><td>SW_ACC1 / SW_CENTRAL</td><td><code>show interfaces trunk</code></td><td>Gi0/1 (ACC1) y Fa0/24 + Gi0/1 (CENTRAL) en modo on, VLANs 21 y 667 en "allowed and active"</td></tr>
+<tr><td>R_LIBERTAD</td><td><code>show ip interface brief</code></td><td>Gi0/0, Gi0/0.21, Gi0/0.667 up/up con sus IPs</td></tr>
+<tr><td>R_LIBERTAD</td><td><code>show ip route</code></td><td><code>C 192.168.69.0/24</code> y <code>C 10.142.46.0/24</code></td></tr>
+<tr><td>PC Prueba1</td><td><code>ping 10.142.46.10</code></td><td>4/4 respuestas (el primero puede perderse por ARP)</td></tr>
+</table>
+
+<h2>9. Errores típicos de este problema</h2>
+<ul>
+<li>El gateway de las PCs no coincide con la IP de <code>Gi0/0.667</code>.</li>
+<li>Falta crear la VLAN 667 en <b>uno</b> de los switches: el trunk la descarta.</li>
+<li>Trunk solo en un extremo, o <code>allowed vlan</code> sin la 667.</li>
+<li><code>Gi0/0</code> en shutdown, o con una IP en la interfaz física.</li>
+</ul>
+
+<h2>10. Solución (intenta primero)</h2>
+<details><summary>Ver solución completa</summary>
+<pre>
+! SW_ACC1 y SW_CENTRAL
+enable
+configure terminal
+vlan 667
+ name SuperBestias
+ exit
+! SW_ACC1
+interface range fa0/10 - 11
+ switchport mode access
+ switchport access vlan 667
+ exit
+interface gi0/1
+ switchport mode trunk
+! SW_CENTRAL
+interface fa0/24
+ switchport mode trunk
+interface gi0/1
+ switchport mode trunk
+end
+! R_LIBERTAD
+configure terminal
+interface gi0/0
+ no shutdown
+interface gi0/0.667
+ encapsulation dot1Q 667
+ ip address 192.168.69.1 255.255.255.0
+end
+copy running-config startup-config
+</pre>
+</details>
+<details><summary>Variante B (misma VLAN de la sede)</summary>
+Poner Fa0/10 y Fa0/11 en <code>switchport access vlan 21</code> y dar a las PCs IPs de <code>10.142.46.0/24</code> (gateway 10.142.46.1). No se crea la VLAN 667 ni la sub-interfaz.
+</details>
+</body>
+</html>

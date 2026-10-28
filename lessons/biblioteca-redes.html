@@ -1,0 +1,600 @@
+<title>Biblioteca de Redes</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gabarito:wght@500;700;800&family=Figtree:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: sidebar fijo de 290px con índice por unidad + columna de lectura de 820px.
+   CÓMO AGREGAR CONTENIDO: crea un <article class="topic" id="..." data-unit="U4" data-title="..." data-status="visto|curso|pendiente">
+   dentro del <section class="unit"> que toque. El sidebar, el buscador y el progreso se generan solos. */
+:root{
+  --bg:#f6f4fb; --surface:#ffffff; --side:#efecf8; --ink:#2b2840; --muted:#6d6886; --line:#e4e0f0;
+  --lav:#d9d0f7; --lav-ink:#4b3a9a; --mint:#c9eedd; --mint-ink:#1f6b4c;
+  --peach:#ffd9c7; --peach-ink:#9a4422; --sky:#cfe4fb; --sky-ink:#1d528a;
+  --butter:#fbefbd; --butter-ink:#7a5b00; --rose:#f8d3df; --rose-ink:#97294f;
+  --term-bg:#2d2a44; --term-ink:#ece8ff; --term-dim:#a29cc4; --shadow:#2b28401a;
+  --display:"Gabarito",system-ui,sans-serif;
+  --body:"Figtree",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,"SFMono-Regular",Menlo,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#1a1826; --surface:#242136; --side:#1f1d2e; --ink:#ecebf5; --muted:#a9a4c4; --line:#36324e;
+  --lav:#3d3466; --lav-ink:#cfc3ff; --mint:#21483a; --mint-ink:#a6e9cb; --peach:#4d3026; --peach-ink:#ffc4a8;
+  --sky:#203c58; --sky-ink:#b5d7fb; --butter:#463c1c; --butter-ink:#f6e19a; --rose:#4a2535; --rose-ink:#f7b8cd;
+  --term-bg:#121019; --term-ink:#ece8ff; --term-dim:#8d87ae; --shadow:#00000066; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#1a1826; --surface:#242136; --side:#1f1d2e; --ink:#ecebf5; --muted:#a9a4c4; --line:#36324e;
+  --lav:#3d3466; --lav-ink:#cfc3ff; --mint:#21483a; --mint-ink:#a6e9cb; --peach:#4d3026; --peach-ink:#ffc4a8;
+  --sky:#203c58; --sky-ink:#b5d7fb; --butter:#463c1c; --butter-ink:#f6e19a; --rose:#4a2535; --rose-ink:#f7b8cd;
+  --term-bg:#121019; --term-ink:#ece8ff; --term-dim:#8d87ae; --shadow:#00000066; color-scheme:dark}
+
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:72px}
+body{background:var(--bg);color:var(--ink);font:16px/1.65 var(--body);margin:0}
+h1,h2,h3,h4{font-family:var(--display);line-height:1.15;text-wrap:balance;margin:0}
+p{margin:0;max-width:68ch}
+ul,ol{margin:0;padding-left:20px;max-width:68ch}
+li+li{margin-top:3px}
+code{font-family:var(--mono);font-size:.86em;background:var(--lav);color:var(--lav-ink);padding:1px 6px;border-radius:6px;overflow-wrap:anywhere}
+a{color:var(--sky-ink)}
+:focus-visible{outline:3px solid var(--lav-ink);outline-offset:2px;border-radius:6px}
+
+/* ---- shell ---- */
+.shell{display:grid;grid-template-columns:290px minmax(0,1fr);min-height:100vh}
+.side{position:sticky;top:0;height:100vh;overflow-y:auto;background:var(--side);border-right:1px solid var(--line);padding-block:20px 40px;padding-inline:16px;display:flex;flex-direction:column;gap:14px}
+.brand{display:flex;flex-direction:column;gap:2px}
+.brand b{font:800 1.3rem var(--display)}
+.brand span{font-size:.8rem;color:var(--muted)}
+.search{width:100%;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:12px;padding:9px 12px;font:500 .92rem var(--body)}
+.prog{display:flex;flex-direction:column;gap:6px;font-size:.8rem;color:var(--muted)}
+.prog .bar{height:8px;border-radius:999px;background:var(--surface);border:1px solid var(--line);overflow:hidden}
+.prog .bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--mint-ink),var(--sky-ink),var(--lav-ink));transition:width .4s}
+.nav{display:flex;flex-direction:column;gap:6px}
+.grp>button{all:unset;cursor:pointer;display:flex;align-items:center;justify-content:space-between;width:100%;box-sizing:border-box;padding:7px 10px;border-radius:10px;font:700 .82rem var(--body);letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.grp>button:hover{background:var(--surface)}
+.grp>button .chev{transition:transform .2s}
+.grp.closed>button .chev{transform:rotate(-90deg)}
+.grp.closed ul{display:none}
+.grp ul{list-style:none;padding:2px 0 4px;margin:0;display:flex;flex-direction:column;gap:1px}
+.grp li+li{margin-top:0}
+.grp a{display:flex;align-items:center;gap:8px;text-decoration:none;color:var(--ink);font-size:.9rem;padding:6px 10px;border-radius:10px;line-height:1.3}
+.grp a:hover{background:var(--surface)}
+.grp a.on{background:var(--surface);box-shadow:0 1px 4px var(--shadow);font-weight:600}
+.grp a .st{flex:none;width:9px;height:9px;border-radius:50%;border:2px solid var(--muted)}
+.grp a .st.visto{background:var(--mint-ink);border-color:var(--mint-ink)}
+.grp a .st.curso{background:var(--butter-ink);border-color:var(--butter-ink)}
+.grp a .st.done{background:var(--lav-ink);border-color:var(--lav-ink)}
+.legend{display:flex;flex-wrap:wrap;gap:10px;font-size:.75rem;color:var(--muted)}
+.legend span{display:inline-flex;align-items:center;gap:5px}
+.legend i{width:8px;height:8px;border-radius:50%;display:inline-block}
+
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;display:flex;align-items:center;gap:10px;justify-content:flex-end;padding:10px 16px;background:color-mix(in srgb,var(--bg) 85%,transparent);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.top .crumb{margin-right:auto;font-size:.85rem;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.btn{border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:999px;padding:7px 13px;font:600 .85rem var(--body);cursor:pointer;white-space:nowrap}
+.btn:hover{border-color:var(--lav-ink)}
+#menu{display:none}
+
+main{padding-inline:16px;padding-block:28px 96px}
+.col{max-width:820px;margin:0 auto;display:flex;flex-direction:column;gap:40px}
+.hero{display:flex;flex-direction:column;gap:12px}
+.eyebrow{font-size:.74rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.hero h1{font-size:clamp(2.2rem,6vw,3.4rem);font-weight:800}
+.hero p{color:var(--muted);font-size:1.08rem}
+.unit{display:flex;flex-direction:column;gap:18px}
+.unit>header{display:flex;flex-direction:column;gap:4px;padding-bottom:6px;border-bottom:2px dashed var(--line)}
+.unit>header h2{font-size:1.7rem}
+.topic{background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:22px;display:flex;flex-direction:column;gap:14px;min-width:0}
+.topic>header{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px}
+.topic>header h3{font-size:1.35rem;flex:1 1 260px}
+.topic h4{font-size:1rem;margin-top:4px}
+.pill{font:700 .72rem var(--body);letter-spacing:.04em;padding:3px 10px;border-radius:999px;white-space:nowrap}
+.p-visto{background:var(--mint);color:var(--mint-ink)} .p-curso{background:var(--butter);color:var(--butter-ink)} .p-pendiente{background:var(--line);color:var(--muted)}
+.mark{display:inline-flex;align-items:center;gap:6px;font-size:.82rem;color:var(--muted);cursor:pointer}
+.mark input{accent-color:var(--lav-ink);width:16px;height:16px}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px}
+.box{border-radius:14px;padding:12px 14px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.box h4{margin:0}
+.c-lav{background:var(--lav);color:var(--lav-ink)} .c-mint{background:var(--mint);color:var(--mint-ink)}
+.c-peach{background:var(--peach);color:var(--peach-ink)} .c-sky{background:var(--sky);color:var(--sky-ink)}
+.c-butter{background:var(--butter);color:var(--butter-ink)} .c-rose{background:var(--rose);color:var(--rose-ink)}
+.box code{background:color-mix(in srgb,var(--surface) 55%,transparent);color:inherit}
+.term{background:var(--term-bg);color:var(--term-ink);border-radius:14px;padding:14px 16px;overflow-x:auto;font:13px/1.7 var(--mono);white-space:pre;margin:0}
+.term .d{color:var(--term-dim)}
+.tbl{overflow-x:auto;border:1px solid var(--line);border-radius:14px}
+table{border-collapse:collapse;width:100%;font-size:.9rem;font-variant-numeric:tabular-nums}
+th,td{text-align:left;padding:8px 12px;border-bottom:1px solid var(--line);white-space:nowrap}
+th{font-size:.76rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);background:var(--bg)}
+tr:last-child td{border-bottom:0}
+td.mono{font-family:var(--mono);font-size:.85rem}
+.warn{background:var(--peach);color:var(--peach-ink);border-radius:14px;padding:12px 14px}
+.warn code{background:color-mix(in srgb,var(--surface) 55%,transparent);color:inherit}
+details.ex{border:1px solid var(--line);border-radius:14px;padding:10px 14px}
+details.ex summary{cursor:pointer;font-weight:600}
+details.ex[open] summary{margin-bottom:8px}
+.extra{font:700 .7rem var(--body);background:var(--peach);color:var(--peach-ink);padding:2px 8px;border-radius:999px;vertical-align:middle}
+.empty{color:var(--muted);font-size:.9rem;padding:6px 10px}
+mark{background:var(--butter);color:var(--butter-ink);border-radius:3px}
+footer{color:var(--muted);font-size:.85rem}
+
+@media (max-width:900px){
+  .shell{grid-template-columns:minmax(0,1fr)}
+  .side{position:fixed;inset:0 auto 0 0;width:min(320px,86vw);z-index:20;transform:translateX(-102%);transition:transform .25s;box-shadow:0 0 40px var(--shadow)}
+  body.open .side{transform:none}
+  #menu{display:inline-block}
+  .scrim{position:fixed;inset:0;background:#0006;z-index:15}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+</style>
+
+<div class="shell">
+<aside class="side" id="side" aria-label="Índice del curso">
+  <div class="brand"><b>Biblioteca de Redes</b><span>Redes y Comunicaciones de Datos · prof. Felix · UPC</span></div>
+  <input class="search" id="q" type="search" placeholder="Buscar: VLSM, trunk, CHAP…" aria-label="Buscar en la biblioteca">
+  <div class="prog"><span id="prog-t">0 de 0 temas repasados</span><div class="bar"><i id="prog-b"></i></div></div>
+  <nav class="nav" id="nav"></nav>
+  <div class="legend"><span><i style="background:var(--mint-ink)"></i>visto en clase</span><span><i style="background:var(--butter-ink)"></i>en curso</span><span><i style="border:2px solid var(--muted)"></i>pendiente</span><span><i style="background:var(--lav-ink)"></i>repasado</span></div>
+</aside>
+
+<div style="min-width:0">
+<div class="top">
+  <button class="btn" id="menu" aria-controls="side" aria-expanded="false">Índice</button>
+  <span class="crumb" id="crumb">Inicio</span>
+  <button class="btn" id="theme" aria-label="Cambiar tema">Tema: sistema</button>
+</div>
+<main><div class="col" id="content">
+
+<section class="hero" id="inicio">
+  <span class="eyebrow">Ciclo 2026 · Cisco Packet Tracer</span>
+  <h1>Todo el curso en un solo lugar</h1>
+  <p>Resumen por semana de las diapositivas S1–S14, los métodos que se evalúan y tablas de consulta rápida. Usa el índice para saltar a un tema y marca "Repasado" cuando lo domines. Tu avance se guarda en este navegador.</p>
+</section>
+
+<!-- ================= EVALUACIÓN ================= -->
+<section class="unit" data-unit="Curso" id="u-curso">
+  <header><span class="eyebrow">Curso</span><h2>Cómo se evalúa</h2></header>
+  <article class="topic" id="evaluacion" data-title="Evaluación y calendario" data-status="visto">
+    <header><h3>Evaluación y calendario</h3></header>
+    <div class="tbl"><table>
+      <tr><th>Evaluación</th><th>Semana</th><th>Peso</th><th>Temas</th></tr>
+      <tr><td>PC1</td><td>4</td><td>10%</td><td>U1–U2: OSI, IPv4, subnetting</td></tr>
+      <tr><td>TP · Trabajo parcial</td><td>7</td><td>10%</td><td>Caso de estudio en Packet Tracer</td></tr>
+      <tr><td>EA · Examen parcial</td><td>8</td><td>20%</td><td>U1–U3: VLSM, VLAN, inter-VLAN</td></tr>
+      <tr><td>PC2</td><td>12</td><td>10%</td><td>Rutas estáticas, RIP, WAN</td></tr>
+      <tr><td>TF · Trabajo final</td><td>15</td><td>15%</td><td>Topología completa del curso</td></tr>
+      <tr><td>DD · Desempeño</td><td>15</td><td>15%</td><td>Participación y laboratorios</td></tr>
+      <tr><td>EB · Examen final</td><td>16</td><td>20%</td><td>Todo el curso</td></tr>
+    </table></div>
+    <div class="box c-butter"><h4>Temas que más aparecen en exámenes</h4><p>Subnetting y VLSM paso a paso · red, broadcast y hosts · VLAN + trunk + inter-VLAN · lectura de <code>show ip route</code> · rutas estáticas, por defecto y flotantes · RIPv2 · ACL extendidas (V/F) · PAP vs CHAP · sumarización · puertos TCP/UDP.</p></div>
+  </article>
+</section>
+
+<!-- ================= UNIDAD 1 ================= -->
+<section class="unit" data-unit="U1" id="u1">
+  <header><span class="eyebrow">Unidad 1 · Semanas 1–2</span><h2>Conceptos básicos y modelo OSI</h2></header>
+
+  <article class="topic" id="s1" data-title="S1 · Redes de hoy" data-status="visto">
+    <header><h3>S1 · Redes de hoy</h3></header>
+    <div class="grid2">
+      <div class="box c-sky"><h4>Componentes</h4><ul><li><b>Hosts</b>: clientes y servidores.</li><li><b>Intermedios</b>: switch, AP, router, firewall.</li><li><b>Medios</b>: cobre, fibra, inalámbrico.</li></ul></div>
+      <div class="box c-mint"><h4>Tipos de red</h4><p>PAN · LAN · WLAN · MAN · WMAN · WAN. La LAN es de una sola organización; la WAN conecta LANs y suele contratarse a un proveedor.</p></div>
+      <div class="box c-lav"><h4>Arquitectura confiable</h4><ul><li>Tolerancia a fallas</li><li>Escalabilidad</li><li>QoS (prioriza voz y video)</li><li>Seguridad: confidencialidad, integridad, disponibilidad</li></ul></div>
+      <div class="box c-peach"><h4>Acceso a Internet</h4><p>FTTH, HFC (cable), DSL, móvil 4G/5G, satelital. Red convergente = datos, voz y video sobre la misma red.</p></div>
+    </div>
+    <p><b>Tendencias:</b> IoT/IIoT, colaboración en línea, nube, virtualización (hipervisor tipo 1 sobre hardware, tipo 2 sobre un SO), hogar inteligente, PLC (red por cableado eléctrico) y WISP.</p>
+  </article>
+
+  <article class="topic" id="s2" data-title="S2 · Modelos OSI/TCP-IP y capa física" data-status="visto">
+    <header><h3>S2 · Modelos OSI/TCP-IP y capa física</h3></header>
+    <div class="tbl"><table>
+      <tr><th>OSI</th><th>TCP/IP</th><th>PDU</th><th>Ejemplos</th></tr>
+      <tr><td>7 Aplicación · 6 Presentación · 5 Sesión</td><td>Aplicación</td><td>Datos</td><td>HTTP, DNS, SSH</td></tr>
+      <tr><td>4 Transporte</td><td>Transporte</td><td>Segmento</td><td>TCP, UDP</td></tr>
+      <tr><td>3 Red</td><td>Internet</td><td>Paquete</td><td>IP, router</td></tr>
+      <tr><td>2 Enlace de datos</td><td rowspan="2">Acceso a la red</td><td>Trama</td><td>Ethernet, MAC, switch</td></tr>
+      <tr><td>1 Física</td><td>Bits</td><td>Cable, señal</td></tr>
+    </table></div>
+    <p><b>Encapsulación:</b> al bajar por las capas cada una agrega su encabezado (datos → segmento → paquete → trama → bits). El receptor desencapsula al subir.</p>
+    <div class="grid2">
+      <div class="box c-sky"><h4>Reglas de un protocolo</h4><p>Codificación, formato, tamaño, temporización y entrega: unicast (1 a 1), multicast (1 a grupo), broadcast (1 a todos).</p></div>
+      <div class="box c-mint"><h4>TCP vs UDP</h4><p><b>TCP</b>: orientado a conexión, confiable, ordena y retransmite. <b>UDP</b>: sin conexión, rápido, sin garantías (voz, video, DNS).</p></div>
+      <div class="box c-lav"><h4>Organismos</h4><p>ISOC, IAB, IETF, IRTF (Internet) · ICANN, IANA (direcciones) · IEEE, EIA, TIA, ITU-T (estándares).</p></div>
+    </div>
+    <h4>Capa física</h4>
+    <ul>
+      <li><b>Ancho de banda</b> = capacidad teórica; <b>rendimiento</b> = lo que realmente pasa; <b>goodput</b> = rendimiento útil sin encabezados; <b>latencia</b> = retardo.</li>
+      <li><b>Cobre</b>: UTP, STP, coaxial. Problemas: atenuación, EMI/RFI, crosstalk. Cable directo (T568B–T568B) entre equipos distintos, cruzado (T568A–T568B) entre iguales, cable de consola para configurar.</li>
+      <li><b>Fibra</b>: monomodo (láser, larga distancia) vs multimodo (LED, corta distancia). Conectores ST, SC, LC.</li>
+      <li><b>Inalámbrico</b>: 802.11 Wi-Fi, 802.15 Bluetooth, 802.16 WiMAX, Zigbee.</li>
+    </ul>
+  </article>
+</section>
+
+<!-- ================= UNIDAD 2 ================= -->
+<section class="unit" data-unit="U2" id="u2">
+  <header><span class="eyebrow">Unidad 2 · Semanas 3–4</span><h2>Direccionamiento IP y redes LAN</h2></header>
+
+  <article class="topic" id="s3" data-title="S3 · IPv4 y subredes" data-status="visto">
+    <header><h3>S3 · IPv4 y subredes</h3></header>
+    <div class="grid2">
+      <div class="box c-sky"><h4>IP vs MAC</h4><p><b>IP</b> (capa 3, lógica) se mantiene de extremo a extremo. <b>MAC</b> (capa 2, física) cambia en cada salto. El <b>default gateway</b> es la IP del router en la LAN.</p></div>
+      <div class="box c-lav"><h4>Características de IP</h4><p>Sin conexión, mejor esfuerzo, independiente del medio. Cabecera: versión, DS, TTL, protocolo, checksum, IP origen y destino de 32 bits.</p></div>
+    </div>
+    <h4>Las 4 cuentas de siempre</h4>
+    <ul>
+      <li><b>Red</b> = IP AND máscara (bits de host en 0).</li>
+      <li><b>Broadcast</b> = bits de host en 1.</li>
+      <li><b>Hosts</b> = 2<sup>h</sup> − 2, donde h = bits de host. <b>Subredes</b> = 2<sup>s</sup>, donde s = bits prestados.</li>
+      <li><b>Salto</b> (tamaño del bloque) = 256 − valor de la máscara en el octeto interesante.</li>
+    </ul>
+    <details class="ex" open><summary>Ejemplo: 192.168.10.66/25</summary>
+      <p>Máscara 255.255.255.128, salto 128. Bloques: .0–.127 y .128–.255. La IP .66 cae en el primero → red <code>192.168.10.0</code>, broadcast <code>192.168.10.127</code>, hosts .1 a .126 (126 hosts).</p>
+    </details>
+    <div class="tbl"><table>
+      <tr><th>Prefijo</th><th>Máscara</th><th>Salto</th><th>Subredes en /24</th><th>Hosts</th></tr>
+      <tr><td class="mono">/24</td><td class="mono">255.255.255.0</td><td>256</td><td>1</td><td>254</td></tr>
+      <tr><td class="mono">/25</td><td class="mono">255.255.255.128</td><td>128</td><td>2</td><td>126</td></tr>
+      <tr><td class="mono">/26</td><td class="mono">255.255.255.192</td><td>64</td><td>4</td><td>62</td></tr>
+      <tr><td class="mono">/27</td><td class="mono">255.255.255.224</td><td>32</td><td>8</td><td>30</td></tr>
+      <tr><td class="mono">/28</td><td class="mono">255.255.255.240</td><td>16</td><td>16</td><td>14</td></tr>
+      <tr><td class="mono">/29</td><td class="mono">255.255.255.248</td><td>8</td><td>32</td><td>6</td></tr>
+      <tr><td class="mono">/30</td><td class="mono">255.255.255.252</td><td>4</td><td>64</td><td>2</td></tr>
+    </table></div>
+    <div class="grid2">
+      <div class="box c-mint"><h4>Privadas (RFC 1918)</h4><p><code>10.0.0.0/8</code> · <code>172.16.0.0/12</code> · <code>192.168.0.0/16</code>. Salen a Internet con NAT.</p></div>
+      <div class="box c-peach"><h4>Especiales</h4><p>Loopback <code>127.0.0.0/8</code> · APIPA <code>169.254.0.0/16</code> (no obtuvo DHCP). Asignación: IANA → RIR → ISP.</p></div>
+      <div class="box c-butter"><h4>Dominio de broadcast</h4><p>Solo el <b>router</b> separa dominios de broadcast. El switch no.</p></div>
+    </div>
+  </article>
+
+  <article class="topic" id="s4" data-title="S4 · VLSM y diseño" data-status="visto">
+    <header><h3>S4 · VLSM y diseño de direccionamiento</h3></header>
+    <p>VLSM es subnetear una subred: cada LAN recibe solo el tamaño que necesita.</p>
+    <ol>
+      <li>Ordena las LAN de mayor a menor cantidad de hosts.</li>
+      <li>Para cada una, busca los bits de host mínimos con 2<sup>h</sup> − 2 ≥ hosts.</li>
+      <li>Subnetea el bloque disponible con ese prefijo.</li>
+      <li>Asigna la primera subred a la LAN más grande y sigue subneteando lo libre. Enlaces entre routers = <code>/30</code>.</li>
+    </ol>
+    <details class="ex" open><summary>Ejemplo del curso: 192.168.10.0/24 con 60, 25, 10 y 5 hosts + 1 enlace WAN</summary>
+      <div class="tbl"><table>
+        <tr><th>LAN</th><th>Hosts</th><th>Prefijo</th><th>Red</th><th>Utilizables</th><th>Broadcast</th><th>Gateway</th></tr>
+        <tr><td>A</td><td>60</td><td class="mono">/26</td><td class="mono">.0</td><td class="mono">.1 – .62</td><td class="mono">.63</td><td class="mono">.1</td></tr>
+        <tr><td>B</td><td>25</td><td class="mono">/27</td><td class="mono">.64</td><td class="mono">.65 – .94</td><td class="mono">.95</td><td class="mono">.65</td></tr>
+        <tr><td>C</td><td>10</td><td class="mono">/28</td><td class="mono">.96</td><td class="mono">.97 – .110</td><td class="mono">.111</td><td class="mono">.97</td></tr>
+        <tr><td>D</td><td>5</td><td class="mono">/29</td><td class="mono">.112</td><td class="mono">.113 – .118</td><td class="mono">.119</td><td class="mono">.113</td></tr>
+        <tr><td>WAN</td><td>2</td><td class="mono">/30</td><td class="mono">.120</td><td class="mono">.121 – .122</td><td class="mono">.123</td><td>—</td></tr>
+      </table></div>
+    </details>
+    <div class="box c-sky"><h4>Planificación</h4><p>DHCP para usuarios · IP estática para servidores, impresoras y equipos de red · DMZ con IP pública · reserva la primera utilizable como gateway. La tabla de entrega lleva: subred, prefijo, red, broadcast, utilizables, máscara y gateway.</p></div>
+    <p>Lecciones relacionadas: <a href="0002-red-host-broadcast.html">Red, host y broadcast</a> · <a href="0003-mascara-26-y-bloques.html">Máscara /26 y bloques</a> · <a href="0004-elegir-mascara.html">Elegir la máscara</a>.</p>
+  </article>
+</section>
+
+<!-- ================= UNIDAD 3 ================= -->
+<section class="unit" data-unit="U3" id="u3">
+  <header><span class="eyebrow">Unidad 3 · Semanas 5–7</span><h2>Switching, VLAN y WLAN</h2></header>
+
+  <article class="topic" id="s5" data-title="S5 · Switching y ARP" data-status="visto">
+    <header><h3>S5 · Ethernet, switching y ARP</h3></header>
+    <div class="grid2">
+      <div class="box c-sky"><h4>Tabla MAC</h4><p>El switch aprende la <b>MAC origen</b> y el puerto. Si no conoce la MAC destino, o es broadcast, <b>inunda</b> por todos los puertos menos el de entrada.</p></div>
+      <div class="box c-mint"><h4>ARP</h4><p>Traduce IPv4 → MAC con un broadcast. Ver caché: <code>show ip arp</code> (router) o <code>arp -a</code> (PC). Riesgo: ARP spoofing.</p></div>
+      <div class="box c-lav"><h4>Dominios</h4><p>Colisión: los elimina el switch con full-duplex. Broadcast: solo los separa el router (o las VLAN).</p></div>
+      <div class="box c-peach"><h4>Reenvío</h4><p>Store-and-forward revisa la trama completa (FCS). Cut-through reenvía apenas lee la MAC destino. Auto-MDIX corrige el tipo de cable.</p></div>
+    </div>
+    <p>Ethernet tiene dos subcapas: LLC (802.2) y MAC (802.3).</p>
+  </article>
+
+  <article class="topic" id="s5-vlan" data-title="S5 · VLAN y trunk" data-status="visto">
+    <header><h3>S5 · VLAN y enlaces troncales</h3></header>
+    <p>Una VLAN es un dominio de broadcast lógico dentro del switch. Tipos: default (VLAN 1), datos, nativa, gestión y voz. Rango normal 1–1005 (se guarda en <code>vlan.dat</code>), extendido 1006–4094.</p>
+    <p>El <b>trunk 802.1Q</b> lleva varias VLAN por un cable: inserta una etiqueta de 4 bytes (TPID 0x8100, VID de 12 bits). La VLAN nativa viaja sin etiqueta.</p>
+<pre class="term"><span class="d">! crear VLAN</span>
+S1(config)# vlan 10
+S1(config-vlan)# name VENTAS
+<span class="d">! puerto de acceso</span>
+S1(config)# interface fa0/1
+S1(config-if)# switchport mode access
+S1(config-if)# switchport access vlan 10
+<span class="d">! troncal</span>
+S1(config)# interface g0/1
+S1(config-if)# switchport mode trunk
+S1(config-if)# switchport trunk native vlan 99
+S1(config-if)# switchport trunk allowed vlan 10,20,99
+<span class="d">! verificar</span>
+S1# show vlan brief
+S1# show interfaces trunk</pre>
+    <p>Borrar todo: <code>no vlan 10</code> o <code>delete flash:vlan.dat</code> y recargar.</p>
+  </article>
+
+  <article class="topic" id="s5-intervlan" data-title="S5 · Inter-VLAN routing" data-status="visto">
+    <header><h3>S5 · Enrutamiento entre VLAN</h3></header>
+    <p>Hosts de VLAN distintas necesitan un dispositivo de capa 3. Tres opciones: legacy (una interfaz física por VLAN), router-on-a-stick y switch capa 3.</p>
+    <div class="grid2">
+      <div class="box c-sky" style="min-width:0"><h4>Router-on-a-stick</h4>
+<pre class="term">R1(config)# interface g0/0.10
+R1(config-subif)# encapsulation dot1Q 10
+R1(config-subif)# ip address 192.168.10.1 255.255.255.0
+R1(config)# interface g0/0
+R1(config-if)# no shutdown</pre>
+        <p>El puerto del switch hacia el router va en <b>trunk</b>. El <code>no shutdown</code> va en la interfaz física.</p></div>
+      <div class="box c-mint" style="min-width:0"><h4>Switch capa 3 (SVI)</h4>
+<pre class="term">S1(config)# ip routing
+S1(config)# interface vlan 10
+S1(config-if)# ip address 192.168.10.1 255.255.255.0
+S1(config-if)# no shutdown
+<span class="d">! puerto enrutado hacia el router</span>
+S1(config-if)# no switchport</pre></div>
+    </div>
+    <p>Práctica en el repo: <code>semana-8/practica-routers-on-stick.pkt</code> y <code>semana-7/materials/pkas de practica/9pm-router-on-stick.pkt</code>.</p>
+  </article>
+
+  <article class="topic" id="s6" data-title="S6 · WLAN" data-status="visto">
+    <header><h3>S6 · Redes inalámbricas (WLAN)</h3></header>
+    <div class="tbl"><table>
+      <tr><th>Estándar</th><th>Banda</th><th>Nota</th></tr>
+      <tr><td>802.11a</td><td>5 GHz</td><td>OFDM</td></tr>
+      <tr><td>802.11b / g</td><td>2.4 GHz</td><td>b = DSSS, g = OFDM</td></tr>
+      <tr><td>802.11n</td><td>2.4 y 5 GHz</td><td>MIMO</td></tr>
+      <tr><td>802.11ac</td><td>5 GHz</td><td>MU-MIMO</td></tr>
+      <tr><td>802.11ax (Wi-Fi 6)</td><td>2.4 y 5 GHz</td><td>alta densidad</td></tr>
+    </table></div>
+    <div class="grid2">
+      <div class="box c-sky"><h4>Funcionamiento</h4><p>Modos ad hoc, infraestructura y tethering. BSS = un AP; ESS = varios AP con el mismo SSID. Asociación: descubrir (pasivo o activo), autenticar, asociar. Acceso al medio con <b>CSMA/CA</b> (RTS/CTS/ACK).</p></div>
+      <div class="box c-mint"><h4>Canales y AP</h4><p>En 2.4 GHz los canales que no se solapan son <b>1, 6 y 11</b>. AP autónomo vs LAP administrado por un WLC. Antenas omnidireccional, direccional y MIMO.</p></div>
+      <div class="box c-rose"><h4>Amenazas</h4><p>Intercepción, intrusos, DoS/DDoS, AP falso (rogue), MITM.</p></div>
+      <div class="box c-lav"><h4>Seguridad</h4><p>WEP → WPA (TKIP) → WPA2 (AES/CCMP) → WPA3 (SAE). Personal usa PSK; Enterprise usa RADIUS 802.1X (UDP 1812/1813). Ocultar SSID y filtrar MAC no son seguridad real.</p></div>
+    </div>
+  </article>
+
+  <article class="topic" id="s7" data-title="S7–S8 · Trabajo parcial y examen" data-status="visto">
+    <header><h3>S7–S8 · Trabajo parcial y examen parcial</h3></header>
+    <p>S7 es la entrega del caso de estudio en Packet Tracer y S8 el examen parcial (U1–U3). Material en el repo: <code>semana-7/materials/</code> (PPTX de VLSM/VLAN/inter-VLAN de Felix, <code>Practica-8-10.pka</code>, caso del grupo 2) y <code>semana-8/Chuleta_Redes_Estilo_Guia_Semanas_1-6.pdf</code>.</p>
+  </article>
+</section>
+
+<!-- ================= UNIDAD 4 ================= -->
+<section class="unit" data-unit="U4" id="u4">
+  <header><span class="eyebrow">Unidad 4 · Semanas 9–14</span><h2>Enrutamiento, WAN y seguridad</h2></header>
+
+  <article class="topic" id="s9" data-title="S9 · Enrutamiento estático" data-status="curso">
+    <header><h3>S9 · Enrutamiento estático</h3></header>
+    <p>El router es una computadora especializada: CPU, Cisco IOS, RAM, ROM, NVRAM y flash. Elige la mejor ruta mirando su <b>tabla de enrutamiento</b>.</p>
+<pre class="term">R1# show ip route
+<span class="d">Gateway of last resort is not set</span>
+C       10.0.0.0/30 is directly connected, Serial0/0/0
+L       10.0.0.1/32 is directly connected, Serial0/0/0
+S    192.168.2.0/24 [1/0] via 10.0.0.2
+<span class="d">     │      │       │ │      └ siguiente salto</span>
+<span class="d">     │      │       │ └ métrica</span>
+<span class="d">     │      │       └ distancia administrativa</span>
+<span class="d">     │      └ red destino / prefijo</span>
+<span class="d">     └ código: C conectada · L local /32 · S estática · R RIP · * candidata a default</span></pre>
+    <div class="tbl"><table>
+      <tr><th>Fuente</th><th>Distancia administrativa</th></tr>
+      <tr><td>Conectada</td><td>0</td></tr><tr><td>Estática</td><td>1</td></tr><tr><td>EIGRP</td><td>90</td></tr><tr><td>OSPF</td><td>110</td></tr><tr><td>RIP</td><td>120</td></tr>
+    </table></div>
+    <p>Menor AD = más confiable. La métrica solo compara rutas de la misma fuente: RIP cuenta saltos, OSPF usa costo y EIGRP usa ancho de banda y retardo.</p>
+    <h4>Método del curso</h4>
+    <ol><li>Lista las redes conectadas del router.</li><li>Lista las redes que no están conectadas.</li><li>Escribe una <code>ip route</code> por cada red remota.</li></ol>
+<pre class="term"><span class="d">! siguiente salto (la IP del vecino directo)</span>
+R1(config)# ip route 192.168.2.0 255.255.255.0 10.0.0.2
+<span class="d">! interfaz de salida (solo seriales punto a punto)</span>
+R1(config)# ip route 192.168.2.0 255.255.255.0 s0/0/0
+<span class="d">! por defecto (router stub con una sola salida)</span>
+R1(config)# ip route 0.0.0.0 0.0.0.0 10.0.0.2
+<span class="d">! flotante: mismo destino, AD mayor = respaldo</span>
+R1(config)# ip route 192.168.3.0 255.255.255.0 10.0.0.10 5</pre>
+    <div class="grid2">
+      <div class="box c-mint"><h4>Tipos de estática</h4><p>Estándar · por defecto (<code>0.0.0.0/0</code>, "gateway of last resort") · flotante (respaldo con AD mayor) · resumida.</p></div>
+      <div class="box c-sky"><h4>Verificar</h4><p><code>show ip route</code> · <code>show ip route static</code> · <code>show running-config | section ip route</code> · <code>ping</code> · <code>traceroute</code>.</p></div>
+    </div>
+    <div class="warn"><b>Erratas de la diapositiva:</b> dice <code>R1#ip route 0.0.0.0 0.0.0.0 10.0.3.2 29</code>. El comando va en <code>R1(config)#</code>, y el <code>29</code> final es la AD, no una máscara: esa ruta por defecto es flotante.</div>
+    <p>Repaso interactivo: <a href="0007-rutas-estaticas-s9.html">Rutas Estáticas S9</a>.</p>
+  </article>
+
+  <article class="topic" id="s10" data-title="S10 · Enrutamiento dinámico y RIPv2" data-status="pendiente">
+    <header><h3>S10 · Enrutamiento dinámico y RIPv2</h3></header>
+    <div class="grid2">
+      <div class="box c-sky"><h4>Estático</h4><p>Lo escribes tú. Sin consumo de CPU, seguro y predecible. No se adapta si cae un enlace. Bueno para redes pequeñas y routers stub.</p></div>
+      <div class="box c-mint"><h4>Dinámico</h4><p>Los routers comparten rutas. Se adapta solo (convergencia). Usa CPU y ancho de banda. Protocolos: RIP, OSPF, EIGRP, IS-IS.</p></div>
+    </div>
+<pre class="term">R1(config)# router rip
+R1(config-router)# version 2
+R1(config-router)# network 192.168.1.0     <span class="d">! solo redes conectadas</span>
+R1(config-router)# network 10.0.0.0
+R1(config-router)# no auto-summary
+R1(config-router)# passive-interface g0/0  <span class="d">! no enviar updates a la LAN</span>
+<span class="d">! propagar ruta por defecto hacia el ISP</span>
+R1(config)# ip route 0.0.0.0 0.0.0.0 209.165.200.226
+R1(config-router)# default-information originate
+R1# show ip protocols</pre>
+    <p>RIP usa saltos como métrica (máximo 15) y envía actualizaciones cada 30 s. Las rutas aprendidas aparecen con código <code>R</code> y <code>[120/saltos]</code>.</p>
+  </article>
+
+  <article class="topic" id="s11" data-title="S11–S12 · WAN, HDLC y PPP" data-status="pendiente">
+    <header><h3>S11–S12 · WAN, HDLC y PPP</h3></header>
+    <div class="grid2">
+      <div class="box c-sky"><h4>Topologías WAN</h4><p>Punto a punto · estrella (hub-and-spoke) · malla completa · doble conexión.</p></div>
+      <div class="box c-lav"><h4>Términos</h4><p>CPE, DTE (router del cliente), DCE (equipo del proveedor que da el reloj), punto de demarcación, bucle local (última milla), oficina central (CO).</p></div>
+      <div class="box c-mint"><h4>Privadas</h4><p>Línea arrendada · WAN Ethernet · MPLS · VSAT.</p></div>
+      <div class="box c-peach"><h4>Públicas</h4><p>DSL · cable · inalámbrico · 4G/LTE · VPN sobre Internet.</p></div>
+    </div>
+    <p>Conmutación de circuitos vs de paquetes. Transporte óptico: SONET/SDH, DWDM. Dispositivos: módem, CSU/DSU, router.</p>
+    <h4>Enlaces seriales</h4>
+    <p><b>HDLC</b> es la encapsulación por defecto de Cisco. <b>PPP</b> agrega LCP (establece el enlace), NCP (protocolos de capa 3), calidad de enlace, multilink, compresión y autenticación.</p>
+    <div class="tbl"><table>
+      <tr><th></th><th>PAP</th><th>CHAP</th></tr>
+      <tr><td>Contraseña</td><td>Texto plano</td><td>Hash (MD5)</td></tr>
+      <tr><td>Intercambio</td><td>2 vías</td><td>3 vías</td></tr>
+      <tr><td>Verificación</td><td>Solo al inicio</td><td>Periódica</td></tr>
+    </table></div>
+<pre class="term">R1(config)# username R2 secret cisco   <span class="d">! hostname del VECINO, misma clave en ambos</span>
+R1(config)# interface s0/0/0
+R1(config-if)# encapsulation ppp
+R1(config-if)# ppp authentication chap
+<span class="d">! para PAP</span>
+R1(config-if)# ppp authentication pap
+R1(config-if)# ppp pap sent-username R1 password cisco
+R1# show interfaces serial 0/0/0
+R1# show controllers serial 0/0/0      <span class="d">! ¿quién es DCE?</span></pre>
+  </article>
+
+  <article class="topic" id="s13" data-title="S13 · Puertos y ACL" data-status="pendiente">
+    <header><h3>S13 · Capa de transporte, puertos y ACL</h3></header>
+    <p>TCP: sesión, confiabilidad, ventanas deslizantes, MSS 1460, control de congestión. UDP: sin todo eso.</p>
+    <div class="tbl"><table>
+      <tr><th>Puerto</th><th>Servicio</th><th>Transporte</th></tr>
+      <tr><td>20/21</td><td>FTP</td><td>TCP</td></tr><tr><td>22</td><td>SSH</td><td>TCP</td></tr><tr><td>23</td><td>Telnet</td><td>TCP</td></tr>
+      <tr><td>25</td><td>SMTP</td><td>TCP</td></tr><tr><td>53</td><td>DNS</td><td>UDP/TCP</td></tr><tr><td>67/68</td><td>DHCP</td><td>UDP</td></tr>
+      <tr><td>69</td><td>TFTP</td><td>UDP</td></tr><tr><td>80</td><td>HTTP</td><td>TCP</td></tr><tr><td>110</td><td>POP3</td><td>TCP</td></tr>
+      <tr><td>143</td><td>IMAP</td><td>TCP</td></tr><tr><td>161</td><td>SNMP</td><td>UDP</td></tr><tr><td>443</td><td>HTTPS</td><td>TCP</td></tr>
+      <tr><td>3306</td><td>MySQL</td><td>TCP</td></tr>
+    </table></div>
+    <h4>ACL extendidas (100–199)</h4>
+    <ul>
+      <li>Se leen de arriba hacia abajo; la primera coincidencia gana.</li>
+      <li>Al final hay un <b>deny implícito</b>: sin <code>permit ip any any</code> se bloquea todo lo demás.</li>
+      <li>Wildcard = inverso de la máscara (255.255.255.0 → 0.0.0.255). <code>host</code> = 0.0.0.0, <code>any</code> = todo.</li>
+      <li>Se aplican cerca del <b>origen</b> con <code>ip access-group N in|out</code>.</li>
+    </ul>
+<pre class="term"><span class="d">! la red 192.168.10.0/24 no puede navegar por HTTP al servidor 10.1.1.10</span>
+R1(config)# access-list 101 deny tcp 192.168.10.0 0.0.0.255 host 10.1.1.10 eq 80
+R1(config)# access-list 101 permit ip any any
+R1(config)# interface g0/0
+R1(config-if)# ip access-group 101 in
+<span class="d">! con nombre</span>
+R1(config)# ip access-list extended BLOQUEO-WEB
+R1(config-ext-nacl)# deny tcp any any range 20 21</pre>
+    <div class="box c-butter"><h4>Ejercicios V/F</h4><p>Lee línea por línea con el paquete en la mano: origen, destino, protocolo y puerto. Si ninguna línea coincide, el resultado es deny.</p></div>
+  </article>
+
+  <article class="topic" id="s14" data-title="S14 · IPv6 y sumarización" data-status="pendiente">
+    <header><h3>S14 · IPv6 y sumarización</h3></header>
+    <p>IPv4 se agotó; NAT/PAT lo alargó. IPv6 usa 128 bits en 8 grupos hexadecimales.</p>
+    <div class="grid2">
+      <div class="box c-sky"><h4>Tipos</h4><p>Global unicast (2000::/3) · link-local (FE80::/10) · unique local (FC00::/7) · multicast (FF00::/8) · anycast · loopback <code>::1</code>.</p></div>
+      <div class="box c-mint"><h4>Simplificar</h4><p>1) Quita los ceros a la izquierda de cada grupo. 2) Cambia una sola secuencia de grupos en cero por <code>::</code>.</p></div>
+    </div>
+    <details class="ex" open><summary>Ejemplo de simplificación</summary><p><code>2001:0DB8:0000:0000:0000:FF00:0042:8329</code> → <code>2001:DB8::FF00:42:8329</code></p></details>
+    <h4>Sumarización (supernetting)</h4>
+    <ol><li>Pasa las redes a binario en el octeto donde cambian.</li><li>Cuenta los bits iguales desde la izquierda.</li><li>Prefijo = bits comunes; red = los bits comunes con el resto en 0.</li></ol>
+<pre class="term">192.168.0.0  → 00000|000
+192.168.1.0  → 00000|001
+   ...
+192.168.7.0  → 00000|111
+<span class="d">16 + 5 bits comunes = /21</span>
+Resumen: 192.168.0.0/21
+R1(config)# ip route 192.168.0.0 255.255.248.0 10.0.0.2</pre>
+    <p>Otro del curso: cuatro /18 desde <code>10.10.0.0</code> hasta <code>10.10.192.0</code> se resumen en <code>10.10.0.0/16</code>.</p>
+  </article>
+</section>
+
+<!-- ================= CONSULTA RÁPIDA ================= -->
+<section class="unit" data-unit="Consulta" id="u-ref">
+  <header><span class="eyebrow">Consulta rápida</span><h2>Tablas y comandos</h2></header>
+  <article class="topic" id="comandos" data-title="Comandos de verificación" data-status="visto">
+    <header><h3>Comandos de verificación</h3></header>
+    <div class="tbl"><table>
+      <tr><th>Comando</th><th>Para qué</th></tr>
+      <tr><td class="mono">show ip interface brief</td><td>Interfaces, IP y estado up/up</td></tr>
+      <tr><td class="mono">show running-config</td><td>Configuración activa</td></tr>
+      <tr><td class="mono">show vlan brief</td><td>VLAN y sus puertos de acceso</td></tr>
+      <tr><td class="mono">show interfaces trunk</td><td>Troncales, nativa y VLAN permitidas</td></tr>
+      <tr><td class="mono">show ip route</td><td>Tabla de enrutamiento</td></tr>
+      <tr><td class="mono">show ip protocols</td><td>RIP: redes anunciadas, pasivas, timers</td></tr>
+      <tr><td class="mono">show ip arp</td><td>Caché ARP del router</td></tr>
+      <tr><td class="mono">show access-lists</td><td>ACL y coincidencias</td></tr>
+      <tr><td class="mono">show controllers serial 0/0/0</td><td>Ver si el extremo es DCE</td></tr>
+      <tr><td class="mono">ping / traceroute</td><td>Conectividad y camino</td></tr>
+    </table></div>
+  </article>
+  <article class="topic" id="basico" data-title="Configuración básica de router/switch" data-status="visto">
+    <header><h3>Configuración básica de router o switch</h3></header>
+<pre class="term">Router> enable
+Router# configure terminal
+Router(config)# hostname R1
+R1(config)# enable secret class
+R1(config)# line console 0
+R1(config-line)# password cisco
+R1(config-line)# login
+R1(config)# interface g0/0
+R1(config-if)# ip address 192.168.1.1 255.255.255.0
+R1(config-if)# no shutdown
+R1(config)# interface s0/0/0
+R1(config-if)# clock rate 64000      <span class="d">! solo en el extremo DCE</span>
+R1# copy running-config startup-config</pre>
+  </article>
+</section>
+
+<footer>Fuente: diapositivas S1–S14 del curso y materiales del repo <code>codigo/cisco</code>. Última actualización: semana 9. <span class="empty" id="noresults" hidden>Sin resultados para la búsqueda.</span></footer>
+</div></main>
+</div>
+</div>
+<div class="scrim" id="scrim" hidden></div>
+
+<script>
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const store={get(k,d){try{const v=localStorage.getItem(k);return v==null?d:JSON.parse(v)}catch{return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch{}}};
+
+/* ---------- tema ---------- */
+const modes=['sistema','claro','oscuro'];
+function applyTheme(m){
+  const r=document.documentElement;
+  if(m==='claro')r.dataset.theme='light'; else if(m==='oscuro')r.dataset.theme='dark'; else delete r.dataset.theme;
+  $('#theme').textContent='Tema: '+m; store.set('bib-theme',m)}
+$('#theme').onclick=()=>{const cur=store.get('bib-theme','sistema');applyTheme(modes[(modes.indexOf(cur)+1)%3])};
+applyTheme(store.get('bib-theme','sistema'));
+
+/* ---------- sidebar desde los artículos ---------- */
+let done=new Set(store.get('bib-done',[]));
+const units=$$('.unit'), labels={Curso:'Curso',U1:'Unidad 1 · OSI',U2:'Unidad 2 · IPv4',U3:'Unidad 3 · LAN',U4:'Unidad 4 · Enrutamiento',Consulta:'Consulta rápida'};
+const closed=new Set(store.get('bib-closed',[]));
+function buildNav(){
+  $('#nav').innerHTML=units.map(u=>{
+    const items=$$(`#${u.id} .topic`).filter(a=>!a.hidden);
+    if(!items.length)return '';
+    const k=u.dataset.unit;
+    return `<div class="grp${closed.has(k)?' closed':''}" data-k="${k}"><button aria-expanded="${!closed.has(k)}">${labels[k]||k}<span class="chev">▾</span></button><ul>`+
+      items.map(a=>`<li><a href="#${a.id}" data-id="${a.id}"><span class="st ${done.has(a.id)?'done':a.dataset.status}"></span>${a.dataset.title}</a></li>`).join('')+'</ul></div>'}).join('');
+  $$('.grp>button').forEach(b=>b.onclick=()=>{const g=b.parentElement,k=g.dataset.k;g.classList.toggle('closed');
+    closed.has(k)?closed.delete(k):closed.add(k);b.setAttribute('aria-expanded',!g.classList.contains('closed'));store.set('bib-closed',[...closed])});
+  $$('.grp a').forEach(a=>a.onclick=()=>setOpen(false));
+  spy();
+}
+
+/* ---------- marcar repasado ---------- */
+const topics=$$('.topic');
+topics.forEach(a=>{
+  const pill={visto:'Visto en clase',curso:'En curso',pendiente:'Pendiente'}[a.dataset.status];
+  a.querySelector('header').insertAdjacentHTML('beforeend',`<span class="pill p-${a.dataset.status}">${pill}</span><label class="mark"><input type="checkbox" id="chk-${a.id}" ${done.has(a.id)?'checked':''}> Repasado</label>`);
+  a.querySelector('input').onchange=e=>{e.target.checked?done.add(a.id):done.delete(a.id);store.set('bib-done',[...done]);progress();buildNav()};
+});
+function progress(){const n=topics.length,d=topics.filter(t=>done.has(t.id)).length;
+  $('#prog-t').textContent=`${d} de ${n} temas repasados`;$('#prog-b').style.width=(d/n*100)+'%'}
+
+/* ---------- búsqueda ---------- */
+$('#q').addEventListener('input',e=>{
+  const q=e.target.value.trim().toLowerCase();
+  topics.forEach(t=>{const hit=!q||t.textContent.toLowerCase().includes(q)||t.dataset.title.toLowerCase().includes(q);t.hidden=!hit});
+  units.forEach(u=>u.hidden=!!q&&!$$(`#${u.id} .topic`).some(t=>!t.hidden));
+  $('#noresults').hidden=!q||topics.some(t=>!t.hidden);
+  buildNav()});
+
+/* ---------- scroll spy ---------- */
+let ticking=false;
+function spy(){
+  const y=window.scrollY+120; let cur=null;
+  topics.forEach(t=>{if(!t.hidden&&t.offsetTop<=y)cur=t});
+  $$('.grp a').forEach(a=>a.classList.toggle('on',cur&&a.dataset.id===cur.id));
+  $('#crumb').textContent=cur?`${labels[cur.closest('.unit').dataset.unit]} › ${cur.dataset.title}`:'Inicio';
+}
+addEventListener('scroll',()=>{if(!ticking){ticking=true;requestAnimationFrame(()=>{spy();ticking=false})}},{passive:true});
+
+/* ---------- menú móvil ---------- */
+function setOpen(v){document.body.classList.toggle('open',v);$('#scrim').hidden=!v;$('#menu').setAttribute('aria-expanded',v)}
+$('#menu').onclick=()=>setOpen(!document.body.classList.contains('open'));
+$('#scrim').onclick=()=>setOpen(false);
+addEventListener('keydown',e=>{if(e.key==='Escape')setOpen(false);if(e.key==='/'&&document.activeElement!==$('#q')){e.preventDefault();$('#q').focus()}});
+
+buildNav(); progress();
+</script>

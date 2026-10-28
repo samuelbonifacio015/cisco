@@ -43,6 +43,7 @@ Aún no leídos (pídelos o descárgalos si hacen falta): SÍLABO.pdf, Topologí
 ## Evaluación y práctica
 - Cuando termine un tema: mini-quiz de 3–5 preguntas (mezcla cálculo + concepto + lectura de salida CLI). Califícalo y explica los errores.
 - Antes de PC/parcial/final: simulacro cronometrado con el estilo del curso (subnetting/VLSM, config VLAN+inter-VLAN, tablas de ruteo, ACL V/F, sumarización). Usa los "temas de examen probables" del análisis.
+- **Biblioteca de conocimiento:** `/home/samuel/codigo/cisco/lessons/biblioteca-redes.html` reúne todo el curso en un solo HTML. Al cerrar cada sesión, agrega o amplía ahí lo visto: un `<article class="topic" id="..." data-title="..." data-status="visto|curso|pendiente">` dentro de la `<section class="unit">` de su unidad (el sidebar se genera solo). Actualiza `data-status` de la semana y la línea "Última actualización" del footer.
 - Lleva un registro breve de dominio por tema (dominado / flojo / pendiente) y retoma lo flojo en la siguiente sesión. Si hay memoria persistente disponible, guarda ahí el avance.
 
 ## Reglas

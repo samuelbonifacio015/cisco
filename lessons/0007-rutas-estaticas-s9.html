@@ -1,0 +1,432 @@
+<title>Rutas Estáticas S9</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gabarito:wght@500;700;800&family=Figtree:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: columna de lectura de 920px; cada bloque es una "estación" de repaso con su propio pastel. */
+:root{
+  --bg:#f6f4fb; --surface:#ffffff; --ink:#2b2840; --muted:#6d6886; --line:#e4e0f0;
+  --lav:#d9d0f7; --lav-ink:#4b3a9a;
+  --mint:#c9eedd; --mint-ink:#1f6b4c;
+  --peach:#ffd9c7; --peach-ink:#9a4422;
+  --sky:#cfe4fb; --sky-ink:#1d528a;
+  --butter:#fbefbd; --butter-ink:#7a5b00;
+  --rose:#f8d3df; --rose-ink:#97294f;
+  --term-bg:#2d2a44; --term-ink:#ece8ff; --term-dim:#a29cc4;
+  --display:"Gabarito",system-ui,sans-serif;
+  --body:"Figtree",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,"SFMono-Regular",Menlo,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#1a1826; --surface:#242136; --ink:#ecebf5; --muted:#a9a4c4; --line:#36324e;
+  --lav:#3d3466; --lav-ink:#cfc3ff; --mint:#21483a; --mint-ink:#a6e9cb;
+  --peach:#4d3026; --peach-ink:#ffc4a8; --sky:#203c58; --sky-ink:#b5d7fb;
+  --butter:#463c1c; --butter-ink:#f6e19a; --rose:#4a2535; --rose-ink:#f7b8cd;
+  --term-bg:#121019; --term-ink:#ece8ff; --term-dim:#8d87ae; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#1a1826; --surface:#242136; --ink:#ecebf5; --muted:#a9a4c4; --line:#36324e;
+  --lav:#3d3466; --lav-ink:#cfc3ff; --mint:#21483a; --mint-ink:#a6e9cb;
+  --peach:#4d3026; --peach-ink:#ffc4a8; --sky:#203c58; --sky-ink:#b5d7fb;
+  --butter:#463c1c; --butter-ink:#f6e19a; --rose:#4a2535; --rose-ink:#f7b8cd;
+  --term-bg:#121019; --term-ink:#ece8ff; --term-dim:#8d87ae; color-scheme:dark}
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font:16px/1.6 var(--body);margin:0}
+.wrap{max-width:920px;margin:0 auto;padding-inline:16px;padding-block:28px 72px;display:flex;flex-direction:column;gap:26px}
+h1,h2,h3{font-family:var(--display);line-height:1.1;text-wrap:balance;margin:0}
+h1{font-size:clamp(2.2rem,7vw,3.6rem);font-weight:800;letter-spacing:-.01em}
+h2{font-size:1.55rem;font-weight:700}
+h3{font-size:1.08rem;font-weight:700}
+p{margin:0;max-width:65ch}
+code,.mono{font-family:var(--mono);font-size:.88em}
+code{background:var(--lav);color:var(--lav-ink);padding:1px 6px;border-radius:6px}
+.eyebrow{font-size:.74rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+
+/* hero */
+.hero{display:grid;gap:14px;padding-block:8px 4px}
+.hero .lead{font-size:1.12rem;color:var(--muted)}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{border:0;font:600 .86rem var(--body);padding:6px 12px;border-radius:999px;cursor:pointer;text-decoration:none}
+.chip:focus-visible,button:focus-visible,select:focus-visible{outline:3px solid var(--lav-ink);outline-offset:2px}
+.c-lav{background:var(--lav);color:var(--lav-ink)} .c-mint{background:var(--mint);color:var(--mint-ink)}
+.c-peach{background:var(--peach);color:var(--peach-ink)} .c-sky{background:var(--sky);color:var(--sky-ink)}
+.c-butter{background:var(--butter);color:var(--butter-ink)} .c-rose{background:var(--rose);color:var(--rose-ink)}
+
+.station{background:var(--surface);border:1px solid var(--line);border-radius:22px;padding:22px;display:flex;flex-direction:column;gap:14px;min-width:0}
+.station header{display:flex;flex-direction:column;gap:6px}
+.dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:8px;vertical-align:middle}
+
+/* terminal */
+.term{background:var(--term-bg);color:var(--term-ink);border-radius:14px;padding:14px 4px;overflow-x:auto;font:13.5px/1.7 var(--mono)}
+.term .ln{display:block;white-space:pre;padding:0 12px;border-radius:6px;cursor:default}
+.term .dim{color:var(--term-dim)}
+.term button.ln{all:unset;display:block;white-space:pre;padding:0 12px;border-radius:6px;cursor:pointer}
+.term button.ln:hover,.term button.ln.on{background:#ffffff1f}
+.term button.ln:focus-visible{outline:2px solid #cfc3ff}
+.explain{border-radius:14px;padding:14px 16px;background:var(--sky);color:var(--sky-ink);min-height:64px}
+.explain b{font-family:var(--display)}
+
+.seg{display:inline-flex;flex-wrap:wrap;gap:4px;background:var(--bg);padding:4px;border-radius:999px;border:1px solid var(--line)}
+.seg button{border:0;background:transparent;color:var(--muted);font:600 .86rem var(--body);padding:6px 12px;border-radius:999px;cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--surface);color:var(--ink);box-shadow:0 1px 3px #0000001a}
+
+/* AD */
+.ad-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+.ad{border-radius:16px;padding:12px 14px;display:flex;flex-direction:column;gap:2px;border:2px solid transparent;cursor:pointer;text-align:left;font:inherit}
+.ad .n{font:800 1.9rem var(--display);font-variant-numeric:tabular-nums}
+.ad .s{font-size:.86rem;font-weight:600}
+.ad[aria-pressed="true"]{border-color:currentColor}
+.duel{border-radius:14px;padding:12px 16px;background:var(--butter);color:var(--butter-ink);font-weight:600}
+
+/* topología */
+.topo{overflow-x:auto;border-radius:16px;background:var(--bg);border:1px solid var(--line)}
+.topo svg{display:block;min-width:640px;width:100%;height:auto}
+.topo text{font-family:var(--mono);font-size:11px;fill:var(--muted)}
+.topo .rt{font-family:var(--display);font-size:15px;font-weight:700;fill:var(--ink)}
+.topo .net{font-family:var(--display);font-size:12px;font-weight:700}
+.cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px}
+.list{border-radius:14px;padding:12px 14px;display:flex;flex-direction:column;gap:6px}
+.list ul{margin:0;padding-left:18px;font-family:var(--mono);font-size:.86rem}
+.cmdbox{position:relative}
+.copy{position:absolute;top:8px;right:8px;border:0;border-radius:8px;padding:4px 10px;font:600 .78rem var(--body);background:var(--lav);color:var(--lav-ink);cursor:pointer}
+.note{font-size:.92rem;color:var(--muted)}
+
+/* flotante */
+.switch{display:inline-flex;align-items:center;gap:10px;font-weight:600;cursor:pointer;user-select:none}
+.switch input{appearance:none;width:46px;height:26px;border-radius:999px;background:var(--mint);position:relative;cursor:pointer;transition:background .2s}
+.switch input::after{content:"";position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:var(--surface);transition:transform .2s}
+.switch input:checked{background:var(--rose)}
+.switch input:checked::after{transform:translateX(20px)}
+.link{transition:stroke .25s,opacity .25s}
+.pkt{transition:offset-distance 0s}
+
+/* quiz */
+.q{border:1px solid var(--line);border-radius:16px;padding:14px 16px;display:flex;flex-direction:column;gap:10px}
+.opts{display:grid;gap:8px}
+.opt{text-align:left;border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:12px;padding:9px 12px;font:500 .95rem var(--body);cursor:pointer}
+.opt:hover{border-color:var(--lav-ink)}
+.opt.ok{background:var(--mint);color:var(--mint-ink);border-color:transparent;font-weight:700}
+.opt.bad{background:var(--rose);color:var(--rose-ink);border-color:transparent}
+.fb{font-size:.92rem;color:var(--muted)}
+.score{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.bar{flex:1;min-width:160px;height:12px;border-radius:999px;background:var(--bg);border:1px solid var(--line);overflow:hidden}
+.bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--mint),var(--sky),var(--lav));transition:width .4s}
+.tag-extra{font-size:.72rem;font-weight:700;background:var(--peach);color:var(--peach-ink);padding:2px 8px;border-radius:999px;margin-left:6px}
+
+.errata{background:var(--peach);color:var(--peach-ink);border-radius:18px;padding:16px 18px;display:flex;flex-direction:column;gap:8px}
+.errata code{background:#ffffff66;color:inherit}
+footer{color:var(--muted);font-size:.88rem;text-align:center}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+
+<div class="wrap">
+
+<section class="hero">
+  <span class="eyebrow">Redes y Comunicaciones de Datos · Semana 09 · Unidad 4</span>
+  <h1>Enrutamiento estático</h1>
+  <p class="lead">Repaso visual de la S9: leer la tabla de enrutamiento, decidir por distancia administrativa, escribir cada <code>ip route</code> con el método del curso y probar una ruta flotante.</p>
+  <nav class="chips" aria-label="Estaciones">
+    <a class="chip c-sky" href="#tabla">Tabla de rutas</a>
+    <a class="chip c-butter" href="#ad">Distancia administrativa</a>
+    <a class="chip c-mint" href="#metodo">Método ip route</a>
+    <a class="chip c-rose" href="#flotante">Ruta flotante</a>
+    <a class="chip c-lav" href="#verificar">Verificar</a>
+    <a class="chip c-peach" href="#quiz">Mini quiz</a>
+  </nav>
+</section>
+
+<!-- 1 TABLA -->
+<section class="station" id="tabla">
+  <header>
+    <span class="eyebrow"><span class="dot" style="background:var(--sky-ink)"></span>9.1 · Tabla de enrutamiento</span>
+    <h2>Lee <code>show ip route</code> línea por línea</h2>
+    <p>Toca una línea de la salida de R1 para ver qué significa cada parte. Cambia de versión para comparar rutas específicas con una ruta por defecto.</p>
+  </header>
+  <div class="seg" role="group" aria-label="Versión de la tabla">
+    <button id="v-spec" aria-pressed="true">Rutas específicas</button>
+    <button id="v-def" aria-pressed="false">Ruta por defecto</button>
+  </div>
+  <div class="term" id="term" aria-label="Salida de show ip route"></div>
+  <div class="explain" id="explain" aria-live="polite">Toca una línea con código (<b>C</b>, <b>L</b>, <b>S</b>, <b>S*</b>) para ver la explicación.</div>
+</section>
+
+<!-- 2 AD -->
+<section class="station" id="ad">
+  <header>
+    <span class="eyebrow"><span class="dot" style="background:var(--butter-ink)"></span>9.1 · Distancia administrativa</span>
+    <h2>Menor AD, más confiable</h2>
+    <p>Si dos fuentes conocen la misma red, el router instala la de <b>menor AD</b>. Elige dos fuentes para ver cuál gana.</p>
+  </header>
+  <div class="ad-grid" id="adgrid"></div>
+  <div class="duel" id="duel" aria-live="polite">Elige dos fuentes.</div>
+  <p class="note">La métrica solo desempata rutas de la <b>misma</b> fuente: RIP cuenta saltos, OSPF usa costo y EIGRP usa ancho de banda y retardo.</p>
+</section>
+
+<!-- 3 MÉTODO -->
+<section class="station" id="metodo">
+  <header>
+    <span class="eyebrow"><span class="dot" style="background:var(--mint-ink)"></span>9.2 · Configurar rutas estáticas</span>
+    <h2>El método del curso en 3 pasos</h2>
+    <p>(1) Lista las redes conectadas del router. (2) Lista las que <b>no</b> están conectadas. (3) Escribe una <code>ip route</code> por cada red remota.</p>
+  </header>
+  <div class="topo">
+    <svg viewBox="0 0 760 210" role="img" aria-label="Topología: LAN-A, R1, R2 con LAN-B, R3 y LAN-C en línea">
+      <g id="topo-nets"></g>
+      <g id="topo-routers"></g>
+    </svg>
+  </div>
+  <div class="score">
+    <div class="seg" role="group" aria-label="Router">
+      <button data-r="R1" aria-pressed="true">R1</button>
+      <button data-r="R2" aria-pressed="false">R2</button>
+      <button data-r="R3" aria-pressed="false">R3</button>
+    </div>
+    <div class="seg" role="group" aria-label="Forma del comando">
+      <button data-m="hop" aria-pressed="true">Siguiente salto</button>
+      <button data-m="intf" aria-pressed="false">Interfaz de salida</button>
+      <button data-m="def" aria-pressed="false">Por defecto</button>
+    </div>
+  </div>
+  <div class="cols">
+    <div class="list c-sky"><h3>1 · Conectadas</h3><ul id="l-con"></ul></div>
+    <div class="list c-peach"><h3>2 · No conectadas</h3><ul id="l-rem"></ul></div>
+  </div>
+  <div class="cmdbox">
+    <div class="term" id="cmds"></div>
+    <button class="copy" id="copy-cmds">Copiar</button>
+  </div>
+  <p class="note" id="m-note"></p>
+</section>
+
+<!-- 4 FLOTANTE -->
+<section class="station" id="flotante">
+  <header>
+    <span class="eyebrow"><span class="dot" style="background:var(--rose-ink)"></span>9.2.4 · Rutas estáticas flotantes</span>
+    <h2>La ruta de respaldo "flota" hasta que la necesitas</h2>
+    <p>R1 llega a LAN-C por R2 (AD 1). Tiene un respaldo por el enlace directo a R3 con <b>AD 5</b>. Apaga el enlace principal y mira cómo cambia la tabla.</p>
+  </header>
+  <label class="switch"><input type="checkbox" id="fail"> Apagar enlace R1–R2 (<span class="mono">shutdown</span> en S0/0/0)</label>
+  <div class="topo">
+    <svg viewBox="0 0 640 240" role="img" aria-label="Triángulo R1, R2, R3 con LAN-C detrás de R3">
+      <line class="link" id="lk12" x1="110" y1="170" x2="320" y2="50" stroke-width="5" stroke-linecap="round"/>
+      <line class="link" id="lk23" x1="320" y1="50" x2="500" y2="170" stroke-width="5" stroke-linecap="round"/>
+      <line class="link" id="lk13" x1="110" y1="170" x2="500" y2="170" stroke-width="5" stroke-linecap="round" stroke-dasharray="10 8"/>
+      <line x1="500" y1="170" x2="590" y2="170" stroke="var(--line)" stroke-width="4"/>
+      <text x="170" y="96">10.0.0.0/30</text>
+      <text x="420" y="96">10.0.0.4/30</text>
+      <text x="245" y="196">10.0.0.8/30 · respaldo</text>
+      <g id="flt-routers"></g>
+      <rect x="560" y="146" width="72" height="48" rx="12" fill="var(--mint)"/>
+      <text x="596" y="167" text-anchor="middle" class="net" style="fill:var(--mint-ink)">LAN-C</text>
+      <text x="596" y="183" text-anchor="middle" style="font-size:9px">192.168.3.0/24</text>
+      <circle id="pkt" r="7" fill="var(--butter-ink)"/>
+    </svg>
+  </div>
+  <div class="cols">
+    <div class="cmdbox"><div class="term" id="flt-cfg"></div></div>
+    <div class="cmdbox"><div class="term" id="flt-tbl" aria-live="polite"></div></div>
+  </div>
+  <p class="note">Para probarla en Packet Tracer: <code>show ip route</code> y <code>traceroute</code> con el enlace arriba, luego <code>shutdown</code> en la interfaz principal y repite ambos comandos.</p>
+</section>
+
+<!-- 5 VERIFICAR -->
+<section class="station" id="verificar">
+  <header>
+    <span class="eyebrow"><span class="dot" style="background:var(--lav-ink)"></span>9.2 · Verificación</span>
+    <h2>Comandos para comprobar en Packet Tracer</h2>
+  </header>
+  <div class="cols" id="verify"></div>
+</section>
+
+<!-- ERRATA -->
+<aside class="errata">
+  <h3>Erratas de la diapositiva</h3>
+  <p>La lámina escribe <code>R1#ip route 0.0.0.0 0.0.0.0 10.0.3.2 29</code>. El comando va en configuración global, así que el prompt correcto es <code>R1(config)#</code>.</p>
+  <p>El <code>29</code> del final no es una máscara: es la AD. Esa ruta por defecto es <b>flotante</b>.</p>
+</aside>
+
+<!-- 6 QUIZ -->
+<section class="station" id="quiz">
+  <header>
+    <span class="eyebrow"><span class="dot" style="background:var(--peach-ink)"></span>Autoevaluación</span>
+    <h2>Mini quiz S9</h2>
+    <div class="score"><div class="bar"><i id="bar"></i></div><b id="score" class="mono">0 / 0</b><button class="chip c-lav" id="reset">Reiniciar</button></div>
+  </header>
+  <div id="qs" style="display:flex;flex-direction:column;gap:12px"></div>
+</section>
+
+<footer>Fuente: diapositivas S9 del curso (9.1 Conceptos de enrutamiento · 9.2 Rutas estáticas IPv4). Lo marcado como <span class="tag-extra">extra</span> no está en las láminas.</footer>
+</div>
+
+<script>
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const press=(btns,el)=>btns.forEach(b=>b.setAttribute('aria-pressed',b===el));
+
+/* ---------- 1 tabla ---------- */
+const head=[
+ ['dim','Codes: L - local, C - connected, S - static, R - RIP, O - OSPF'],
+ ['dim','       D - EIGRP, * - candidate default'],
+ ['','']];
+const spec=[
+ ...head,
+ ['dim','Gateway of last resort is not set'],['',''],
+ ['dim','     10.0.0.0/8 is variably subnetted, 3 subnets, 2 masks'],
+ ['C','C       10.0.0.0/30 is directly connected, Serial0/0/0'],
+ ['L','L       10.0.0.1/32 is directly connected, Serial0/0/0'],
+ ['S','S       10.0.0.4/30 [1/0] via 10.0.0.2'],
+ ['dim','     192.168.1.0/24 is variably subnetted, 2 subnets, 2 masks'],
+ ['C2','C       192.168.1.0/24 is directly connected, GigabitEthernet0/0'],
+ ['L2','L       192.168.1.1/32 is directly connected, GigabitEthernet0/0'],
+ ['S2','S    192.168.2.0/24 [1/0] via 10.0.0.2'],
+ ['S3','S    192.168.3.0/24 [1/0] via 10.0.0.2']];
+const def=[
+ ...head,
+ ['GW','Gateway of last resort is 10.0.0.2 to network 0.0.0.0'],['',''],
+ ['SD','S*   0.0.0.0/0 [1/0] via 10.0.0.2'],
+ ['dim','     10.0.0.0/8 is variably subnetted, 2 subnets, 2 masks'],
+ ['C','C       10.0.0.0/30 is directly connected, Serial0/0/0'],
+ ['L','L       10.0.0.1/32 is directly connected, Serial0/0/0'],
+ ['dim','     192.168.1.0/24 is variably subnetted, 2 subnets, 2 masks'],
+ ['C2','C       192.168.1.0/24 is directly connected, GigabitEthernet0/0'],
+ ['L2','L       192.168.1.1/32 is directly connected, GigabitEthernet0/0']];
+const why={
+ C:'<b>C · conectada.</b> La red 10.0.0.0/30 del enlace serial con R2. Aparece sola cuando la interfaz tiene IP y está <i>up/up</i>. AD 0.',
+ L:'<b>L · local.</b> La IP propia de la interfaz (10.0.0.1) con máscara <b>/32</b>. Siempre acompaña a una C.',
+ S:'<b>S · estática.</b> Red remota 10.0.0.4/30 (enlace R2–R3). <b>[1/0]</b> = AD 1 / métrica 0. <b>via 10.0.0.2</b> = siguiente salto, la IP de R2.',
+ C2:'<b>C · conectada.</b> LAN-A, la red de la interfaz GigabitEthernet0/0.',
+ L2:'<b>L · local.</b> 192.168.1.1/32: el gateway de LAN-A, que es la IP de R1 en G0/0.',
+ S2:'<b>S · estática.</b> LAN-B, detrás de R2. Se escribió con <code>ip route 192.168.2.0 255.255.255.0 10.0.0.2</code>.',
+ S3:'<b>S · estática.</b> LAN-C, a dos saltos. Desde R1 el siguiente salto sigue siendo R2 (10.0.0.2): R1 solo conoce a su vecino.',
+ GW:'<b>Gateway of last resort.</b> Ahora existe una ruta por defecto, y todo lo que no coincida con otra línea sale hacia 10.0.0.2.',
+ SD:'<b>S* · estática por defecto.</b> 0.0.0.0/0 coincide con cualquier destino porque no exige bits en común. El <b>*</b> la marca como candidata a default. Reemplaza las 3 estáticas: R1 es un router <i>stub</i> con una sola salida.'};
+function renderTable(rows){
+  const t=$('#term'); t.innerHTML='';
+  rows.forEach(([k,txt])=>{
+    const el=document.createElement(why[k]?'button':'span');
+    el.className='ln'+(k==='dim'?' dim':''); el.textContent=txt||' ';
+    if(why[k]) el.onclick=()=>{$$('#term .ln').forEach(x=>x.classList.remove('on'));el.classList.add('on');$('#explain').innerHTML=why[k]};
+    t.appendChild(el)});
+  $('#explain').innerHTML='Toca una línea con código (<b>C</b>, <b>L</b>, <b>S</b>, <b>S*</b>) para ver la explicación.';
+}
+$('#v-spec').onclick=e=>{press([$('#v-spec'),$('#v-def')],e.target);renderTable(spec)};
+$('#v-def').onclick=e=>{press([$('#v-spec'),$('#v-def')],e.target);renderTable(def)};
+renderTable(spec);
+
+/* ---------- 2 AD ---------- */
+const ads=[['Conectada',0,'mint'],['Estática',1,'sky'],['EIGRP',90,'lav'],['OSPF',110,'butter'],['RIP',120,'peach'],['Flotante (ej.)',130,'rose']];
+let pick=[];
+ads.forEach(([n,v,c],i)=>{
+  const b=document.createElement('button'); b.className='ad c-'+c; b.setAttribute('aria-pressed','false');
+  b.innerHTML=`<span class="n">${v}</span><span class="s">${n}</span>`;
+  b.onclick=()=>{pick=pick.includes(i)?pick.filter(x=>x!==i):[...pick.slice(-1),i];
+    $$('.ad').forEach((x,j)=>x.setAttribute('aria-pressed',pick.includes(j)));duel()};
+  $('#adgrid').appendChild(b)});
+function duel(){
+  if(pick.length<2){$('#duel').textContent=pick.length?`${ads[pick[0]][0]} elegida. Elige otra.`:'Elige dos fuentes.';return}
+  const [a,b]=pick.map(i=>ads[i]), w=a[1]<b[1]?a:b, l=w===a?b:a;
+  $('#duel').textContent=`Gana ${w[0]} (AD ${w[1]}). ${l[0]} (AD ${l[1]}) no entra a la tabla mientras ${w[0]} exista.`;
+}
+
+/* ---------- 3 método ---------- */
+const nets={A:['LAN-A','192.168.1.0','255.255.255.0','/24','sky'],L12:['R1–R2','10.0.0.0','255.255.255.252','/30','lav'],
+  B:['LAN-B','192.168.2.0','255.255.255.0','/24','mint'],L23:['R2–R3','10.0.0.4','255.255.255.252','/30','lav'],C:['LAN-C','192.168.3.0','255.255.255.0','/24','peach']};
+const R={
+ R1:{con:['A','L12'],ifs:{A:'G0/0 .1',L12:'S0/0/0 10.0.0.1'},hop:{B:'10.0.0.2',L23:'10.0.0.2',C:'10.0.0.2'},intf:{B:'s0/0/0',L23:'s0/0/0',C:'s0/0/0'},def:'10.0.0.2'},
+ R2:{con:['L12','B','L23'],ifs:{},hop:{A:'10.0.0.1',C:'10.0.0.6'},intf:{A:'s0/0/0',C:'s0/0/1'},def:null},
+ R3:{con:['L23','C'],ifs:{},hop:{A:'10.0.0.5',L12:'10.0.0.5',B:'10.0.0.5'},intf:{A:'s0/0/1',L12:'s0/0/1',B:'s0/0/1'},def:'10.0.0.5'}};
+let cr='R1', cm='hop';
+// dibujo
+const X={A:50,R1:160,L12:255,R2:350,B:350,L23:445,R3:540,C:660};
+(function draw(){
+  let g='';
+  [['R1','R2'],['R2','R3']].forEach(([a,b])=>g+=`<line x1="${X[a]}" y1="90" x2="${X[b]}" y2="90" stroke="var(--line)" stroke-width="5" stroke-linecap="round"/>`);
+  g+=`<line x1="${X.A+40}" y1="90" x2="${X.R1}" y2="90" stroke="var(--line)" stroke-width="4"/><line x1="${X.R3}" y1="90" x2="${X.C-40}" y2="90" stroke="var(--line)" stroke-width="4"/><line x1="350" y1="90" x2="350" y2="150" stroke="var(--line)" stroke-width="4"/>`;
+  const box=(k,x,y)=>`<g id="n-${k}"><rect x="${x-46}" y="${y-24}" width="92" height="48" rx="12" fill="var(--${nets[k][4]})" class="nbox"/><text x="${x}" y="${y-3}" text-anchor="middle" class="net" style="fill:var(--${nets[k][4]}-ink)">${nets[k][0]}</text><text x="${x}" y="${y+13}" text-anchor="middle" style="font-size:9.5px">${nets[k][1]}${nets[k][3]}</text></g>`;
+  g+=box('A',X.A+4,90)+box('B',350,170)+box('C',X.C+40,90);
+  g+=`<g id="n-L12"><text x="${X.L12}" y="74" text-anchor="middle" class="net" style="fill:var(--lav-ink)">10.0.0.0/30</text><text x="${X.L12-70}" y="112">.1</text><text x="${X.L12+60}" y="112">.2</text></g>`;
+  g+=`<g id="n-L23"><text x="${X.L23}" y="74" text-anchor="middle" class="net" style="fill:var(--lav-ink)">10.0.0.4/30</text><text x="${X.L23-70}" y="112">.5</text><text x="${X.L23+60}" y="112">.6</text></g>`;
+  $('#topo-nets').innerHTML=g;
+  $('#topo-routers').innerHTML=['R1','R2','R3'].map(r=>`<g id="r-${r}"><circle cx="${X[r]}" cy="90" r="24" fill="var(--surface)" stroke="var(--ink)" stroke-width="2.5"/><text x="${X[r]}" y="95" text-anchor="middle" class="rt">${r}</text></g>`).join('');
+})();
+function renderMethod(){
+  const r=R[cr], all=Object.keys(nets), rem=all.filter(k=>!r.con.includes(k));
+  $('#l-con').innerHTML=r.con.map(k=>`<li>${nets[k][1]}${nets[k][3]} · ${nets[k][0]}</li>`).join('');
+  $('#l-rem').innerHTML=rem.map(k=>`<li>${nets[k][1]}${nets[k][3]} · ${nets[k][0]}</li>`).join('');
+  all.forEach(k=>{const g=$('#n-'+k); g.style.opacity=r.con.includes(k)?1:.55});
+  ['R1','R2','R3'].forEach(x=>$(`#r-${x} circle`).setAttribute('stroke-width',x===cr?5:2.5));
+  let lines=[`${cr}(config)#`], note='';
+  if(cm==='def'){
+    if(r.def){lines.push(`ip route 0.0.0.0 0.0.0.0 ${r.def}`);note=`${cr} es stub: tiene una sola salida, así que una ruta por defecto reemplaza las ${rem.length} rutas estáticas.`}
+    else{lines.push('! R2 no es stub: tiene redes remotas a ambos lados.');lines.push('! Una sola ruta por defecto mandaría LAN-A y LAN-C por el mismo lado.');note='Usa rutas específicas en R2.'}
+  } else {
+    rem.forEach(k=>lines.push(`ip route ${nets[k][1]} ${nets[k][2]} ${r[cm][k]}`));
+    note=cm==='hop'?`Siguiente salto = IP del vecino directo, nunca la del router lejano. ${rem.length} redes remotas = ${rem.length} rutas.`
+      :'El curso usa la forma con interfaz de salida solo en enlaces seriales punto a punto. En Ethernet usa siguiente salto o ruta totalmente especificada.';
+  }
+  $('#cmds').innerHTML=lines.map((l,i)=>`<span class="ln${i===0||l.startsWith('!')?' dim':''}">${l}</span>`).join('');
+  $('#m-note').textContent=note;
+}
+$$('[data-r]').forEach(b=>b.onclick=()=>{cr=b.dataset.r;press($$('[data-r]'),b);renderMethod()});
+$$('[data-m]').forEach(b=>b.onclick=()=>{cm=b.dataset.m;press($$('[data-m]'),b);renderMethod()});
+async function copyFrom(sel,btn){
+  const txt=[...document.querySelectorAll(sel+' .ln')].map(x=>x.textContent).filter(t=>!t.endsWith('#')).join('\n');
+  try{await navigator.clipboard.writeText(txt);btn.textContent='Copiado'}catch{const r=document.createRange();r.selectNodeContents($(sel));getSelection().removeAllRanges();getSelection().addRange(r);btn.textContent='Selecciona y copia'}
+  setTimeout(()=>btn.textContent='Copiar',1400)}
+$('#copy-cmds').onclick=e=>copyFrom('#cmds',e.target);
+renderMethod();
+
+/* ---------- 4 flotante ---------- */
+const FP={R1:[110,170],R2:[320,50],R3:[500,170]};
+$('#flt-routers').innerHTML=Object.entries(FP).map(([r,[x,y]])=>`<circle cx="${x}" cy="${y}" r="24" fill="var(--surface)" stroke="var(--ink)" stroke-width="2.5"/><text x="${x}" y="${y+5}" text-anchor="middle" class="rt">${r}</text>`).join('')+
+ `<text x="70" y="215">.1 / .9</text><text x="300" y="20">.2 / .5</text><text x="470" y="215">.6 / .10</text>`;
+$('#flt-cfg').innerHTML=['R1(config)#','! principal (AD 1 por defecto)','ip route 192.168.3.0 255.255.255.0 10.0.0.2','! flotante: mismo destino, AD 5','ip route 192.168.3.0 255.255.255.0 10.0.0.10 5']
+ .map((l,i)=>`<span class="ln${i===0||l.startsWith('!')?' dim':''}">${l}</span>`).join('');
+let anim=null;
+function renderFloat(){
+  const down=$('#fail').checked;
+  $('#lk12').setAttribute('stroke',down?'var(--rose-ink)':'var(--mint-ink)'); $('#lk12').style.opacity=down?.35:1;
+  $('#lk23').setAttribute('stroke',down?'var(--line)':'var(--mint-ink)');
+  $('#lk13').setAttribute('stroke',down?'var(--mint-ink)':'var(--line)');
+  const rows=down?['R1# show ip route static','S    192.168.3.0/24 [5/0] via 10.0.0.10','','R1# traceroute 192.168.3.10','  1  10.0.0.10','  2  192.168.3.10']
+                 :['R1# show ip route static','S    192.168.3.0/24 [1/0] via 10.0.0.2','','R1# traceroute 192.168.3.10','  1  10.0.0.2','  2  10.0.0.6','  3  192.168.3.10'];
+  $('#flt-tbl').innerHTML=rows.map(l=>`<span class="ln${l.startsWith('R1#')?' dim':''}">${l||' '}</span>`).join('');
+  const path=down?[FP.R1,FP.R3,[596,170]]:[FP.R1,FP.R2,FP.R3,[596,170]];
+  cancelAnimationFrame(anim);
+  const pkt=$('#pkt'), reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const seg=path.slice(1).map((p,i)=>Math.hypot(p[0]-path[i][0],p[1]-path[i][1])), total=seg.reduce((a,b)=>a+b,0);
+  if(reduce){pkt.setAttribute('cx',path.at(-1)[0]);pkt.setAttribute('cy',path.at(-1)[1]);return}
+  let t0=null;
+  const step=ts=>{t0??=ts; let d=((ts-t0)/1000*160)%(total+80); if(d>total)d=total;
+    let i=0; while(i<seg.length-1&&d>seg[i]){d-=seg[i];i++}
+    const f=Math.min(d/seg[i],1), a=path[i], b=path[i+1];
+    pkt.setAttribute('cx',a[0]+(b[0]-a[0])*f); pkt.setAttribute('cy',a[1]+(b[1]-a[1])*f); anim=requestAnimationFrame(step)};
+  anim=requestAnimationFrame(step);
+}
+$('#fail').onchange=renderFloat; renderFloat();
+
+/* ---------- 5 verificar ---------- */
+const ver=[['show ip route','Tabla completa: códigos, [AD/métrica], next-hop.','sky'],['show ip route static','Solo las estáticas. El * marca la candidata a default.','mint'],
+ ['show running-config | section ip route','Las líneas ip route tal como las escribiste.','lav'],['ping <ip>','Conectividad de extremo a extremo.','butter'],
+ ['traceroute <ip>','El camino salto por salto. Sirve para ver si usa la flotante.','rose'],['show ip interface brief','Interfaces up/up: sin up/up no hay ruta C ni L.','peach']];
+$('#verify').innerHTML=ver.map(([c,d,k])=>`<div class="list c-${k}"><span class="mono" style="font-weight:600">${c.replace('<','&lt;').replace('>','&gt;')}</span><span style="font-size:.9rem">${d}</span></div>`).join('');
+
+/* ---------- 6 quiz ---------- */
+const Q=[
+ ['En <code>S 172.16.5.0/24 [1/0] via 10.1.1.2</code>, ¿qué es el <b>1</b>?',['La métrica en saltos','La distancia administrativa','El número de la interfaz','El prefijo resumido'],1,'Formato [AD/métrica]: AD 1 = estática, métrica 0.'],
+ ['R3 es stub y su vecino es 10.0.0.5. ¿Cuál es su ruta por defecto?',['ip route 0.0.0.0 255.255.255.255 10.0.0.5','ip route 10.0.0.5 0.0.0.0 0.0.0.0','ip route 0.0.0.0 0.0.0.0 10.0.0.5','ip default 10.0.0.5'],2,'Red 0.0.0.0, máscara 0.0.0.0 (ningún bit debe coincidir) y luego el siguiente salto.'],
+ ['Para que una estática sea flotante, su AD debe ser…',['Igual a la de la ruta principal','Menor que la de la ruta principal','Mayor que la de la ruta principal','Siempre 255'],2,'Con AD mayor queda fuera de la tabla mientras la principal exista. AD 255 significa "no confiable": nunca se instala.'],
+ ['R1 tiene 2 redes conectadas y en la topología hay 5 redes. Sin ruta por defecto, ¿cuántas <code>ip route</code> necesita?',['2','3','5','1'],1,'Redes remotas = 5 − 2 = 3, una ruta por cada una.'],
+ ['¿En qué enlaces recomienda el curso la estática con <b>interfaz de salida</b> en lugar de siguiente salto?',['Ethernet multiacceso','Seriales punto a punto','Enlaces inalámbricos','Cualquiera, da igual'],1,'En punto a punto solo hay un vecino posible. En Ethernet el router tendría que hacer ARP por cada destino.'],
+ ['Hay rutas a 10.0.0.0/8 (via A) y a 10.1.0.0/16 (via B). Un paquete va a 10.1.2.3. ¿Por dónde sale? <span class="tag-extra">extra</span>',['Por A, porque /8 se aprendió primero','Por B, porque es la coincidencia más larga','Se balancea entre A y B','Se descarta'],1,'El router elige el prefijo más largo que coincide (longest match). La AD solo compara rutas al mismo prefijo.']];
+let ans={};
+function renderQuiz(){
+  $('#qs').innerHTML=Q.map(([q,o],i)=>`<div class="q"><span class="eyebrow">Pregunta ${i+1}</span><p>${q}</p><div class="opts">${o.map((t,j)=>`<button class="opt" data-q="${i}" data-o="${j}">${t}</button>`).join('')}</div><p class="fb" id="fb${i}" aria-live="polite"></p></div>`).join('');
+  $$('.opt').forEach(b=>b.onclick=()=>{const i=+b.dataset.q,j=+b.dataset.o; if(i in ans)return; ans[i]=j;
+    $$(`.opt[data-q="${i}"]`).forEach(x=>{const k=+x.dataset.o; if(k===Q[i][2])x.classList.add('ok'); else if(k===j)x.classList.add('bad')});
+    $('#fb'+i).innerHTML=(j===Q[i][2]?'✓ Correcto. ':'✗ Casi. ')+Q[i][3]; score()});
+  score()}
+function score(){const n=Object.keys(ans).length, ok=Object.entries(ans).filter(([i,j])=>Q[i][2]===j).length;
+  $('#score').textContent=`${ok} / ${n}`; $('#bar').style.width=(ok/Q.length*100)+'%'}
+$('#reset').onclick=()=>{ans={};renderQuiz()};
+renderQuiz();
+</script>
