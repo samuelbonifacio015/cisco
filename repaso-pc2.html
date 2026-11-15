@@ -1,0 +1,541 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Repaso PC2 · Redes y Comunicaciones de Datos</title>
+<style>
+:root{--bg:#0b1020;--panel:#151c30;--panel2:#1d2640;--txt:#e6ebf5;--mut:#a3aec8;--acc:#60a5fa;--ok:#34d399;--bad:#f87171;--warn:#fbbf24;--line:#2d3960}
+*{box-sizing:border-box}
+body{margin:0;font:16px/1.5 system-ui,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--txt)}
+header{position:sticky;top:0;z-index:2;background:var(--bg);border-bottom:1px solid var(--line);padding:14px 16px}
+h1{font-size:1.2rem;margin:0 0 10px}
+h2{font-size:1.1rem;margin:0 0 8px}
+nav{display:flex;gap:8px;flex-wrap:wrap}
+main{max-width:880px;margin:0 auto;padding:16px}
+button,select,input{font:inherit;color:var(--txt)}
+button{background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:10px 14px;min-height:44px;cursor:pointer}
+button:hover:not(:disabled){border-color:var(--acc)}
+button:disabled{opacity:.5;cursor:not-allowed}
+button[aria-selected=true],button.primario{background:var(--acc);color:#04111f;border-color:var(--acc);font-weight:600}
+:focus-visible{outline:3px solid var(--warn);outline-offset:2px}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:18px;margin-bottom:16px}
+.barra{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:12px}
+.barra label{display:flex;gap:6px;align-items:center;color:var(--mut);flex-wrap:wrap}
+select,input[type=text]{background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:9px 10px;min-height:44px;max-width:100%}
+input[type=text]{flex:1 1 220px;min-width:0}
+#vHosts{flex:none;width:120px}
+.stats{display:flex;gap:6px 18px;flex-wrap:wrap;color:var(--mut);font-size:.95rem}
+.stats b{color:var(--txt)}
+.meta{color:var(--mut);font-size:.85rem;margin:0 0 6px}
+.enun{font-size:1.08rem;white-space:pre-wrap;margin:4px 0 12px}
+fieldset{border:0;padding:0;margin:0 0 8px}
+legend{color:var(--mut);font-size:.9rem;margin-bottom:4px}
+label.op{display:flex;gap:10px;align-items:flex-start;padding:10px 12px;border:1px solid var(--line);border-radius:8px;margin:6px 0;background:var(--panel2);cursor:pointer}
+label.op:hover{border-color:var(--acc)}
+label.op input{width:18px;height:18px;margin-top:3px;flex:none;accent-color:var(--acc)}
+label.op.ok{border-color:var(--ok)}
+label.op.mal{border-color:var(--bad)}
+.blanco{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:8px 0;color:var(--mut)}
+.blanco input{max-width:160px}
+.fb{margin:12px 0;padding:12px 14px;border-radius:8px;border-left:4px solid var(--line);background:var(--panel2)}
+.fb.ok{border-color:var(--ok)}
+.fb.mal{border-color:var(--bad)}
+.nota{color:var(--warn);font-size:.9rem}
+.tag{background:var(--warn);color:#1a1200;border-radius:6px;padding:0 6px;font-size:.8rem;font-weight:600}
+.timer{font-size:1.4rem;font-weight:700;color:var(--warn);font-variant-numeric:tabular-nums}
+.flash{display:block;width:100%;min-height:200px;text-align:center;font-size:1.15rem;white-space:pre-wrap;padding:24px;background:var(--panel2)}
+.flash.dorso{border-color:var(--ok)}
+code.cmd{display:inline-block;background:#0a0f1d;color:#a5f3fc;padding:4px 8px;border-radius:6px;font-family:Consolas,monospace;max-width:100%;overflow-x:auto;white-space:pre}
+ol.res{padding-left:20px}
+ol.res li{margin:10px 0;padding-bottom:10px;border-bottom:1px solid var(--line)}
+.tabla{overflow-x:auto;margin-top:12px}
+table{width:100%;border-collapse:collapse;font-size:.95rem}
+caption{color:var(--mut);text-align:left;margin-bottom:4px}
+th,td{border:1px solid var(--line);padding:6px 8px;text-align:left}
+th{background:var(--panel2)}
+.hidden{display:none!important}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+@media (max-width:600px){h1{font-size:1.05rem}button{flex:1 1 auto}}
+</style>
+</head>
+<body>
+<header>
+  <h1>Repaso PC2 · Unidad 4 (S9-S12)</h1>
+  <nav role="tablist" aria-label="Modos de repaso">
+    <button role="tab" type="button" data-tab="quiz" aria-selected="true">Quiz</button>
+    <button role="tab" type="button" data-tab="sim" aria-selected="false">Simulacro</button>
+    <button role="tab" type="button" data-tab="banco" aria-selected="false">Banco</button>
+    <button role="tab" type="button" data-tab="practica" aria-selected="false">Práctica</button>
+    <button role="tab" type="button" data-tab="capturas" aria-selected="false">Capturas</button>
+  </nav>
+</header>
+<main>
+<section id="s-quiz">
+  <div class="panel">
+    <div class="barra">
+      <label>Tema <select id="fTema"></select></label>
+      <button id="bNueva" type="button">Nueva ronda</button>
+      <button id="bFalladas" type="button">Repetir falladas (0)</button>
+    </div>
+    <div class="stats">
+      <span>Ronda: <b id="sPuntaje">0/0</b></span>
+      <span>Posición: <b id="sPos"></b></span>
+      <span>Racha: <b id="sRacha">0</b></span>
+      <span>Mejor racha: <b id="sMejor">0</b></span>
+      <span>Total: <b id="sTotal">0</b></span>
+    </div>
+  </div>
+  <div class="panel">
+    <div id="quizBox"></div>
+    <div id="fb" aria-live="polite"></div>
+    <div class="barra">
+      <button id="bComprobar" class="primario" type="button">Comprobar</button>
+      <button id="bSig" class="primario hidden" type="button">Siguiente</button>
+    </div>
+  </div>
+</section>
+
+<section id="s-sim" class="hidden">
+  <div class="panel">
+    <p class="meta">20 preguntas aleatorias y 30 minutos. Las respuestas se corrigen al terminar.</p>
+    <div class="barra">
+      <button id="bSimIni" class="primario" type="button">Iniciar simulacro</button>
+      <span class="timer" id="simTimer"></span>
+      <span id="simProg" class="meta"></span>
+    </div>
+    <div id="simBox"></div>
+    <div id="simNav" class="barra hidden">
+      <button id="bSimAnt" type="button">Anterior</button>
+      <button id="bSimSig" type="button">Siguiente</button>
+      <button id="bSimFin" type="button">Terminar</button>
+    </div>
+  </div>
+  <div id="simRes" class="panel hidden"></div>
+</section>
+
+<section id="s-banco" class="hidden">
+  <div class="panel">
+    <div class="barra">
+      <input type="text" id="buscar" placeholder="Buscar en todas las tarjetas..." aria-label="Buscar tarjetas">
+      <select id="fTarj" aria-label="Tema de tarjetas"></select>
+    </div>
+    <button id="flash" class="flash" type="button"></button>
+    <div class="barra" style="justify-content:space-between;margin-top:12px">
+      <button id="tAnt" type="button">Anterior</button>
+      <span id="tCont" class="meta"></span>
+      <button id="tSig" type="button">Siguiente</button>
+    </div>
+    <p id="tVacio" class="nota hidden">Sin resultados para esa búsqueda.</p>
+  </div>
+</section>
+
+<section id="s-capturas" class="hidden">
+  <div class="panel">
+    <h2>Capturas de las "fijas"</h2>
+    <p class="meta">Despliega "Ver respuesta" bajo cada imagen. Las marcadas con ⚠ conviene confirmarlas con el profesor.</p>
+    <div id="capGal"></div>
+  </div>
+</section>
+<section id="s-practica" class="hidden">
+  <div class="panel">
+    <h2>Mini práctica de comandos</h2>
+    <p class="meta" id="pCont"></p>
+    <p class="enun" id="pEsc"></p>
+    <p id="pIns"></p>
+    <div class="barra">
+      <input type="text" id="pIn" aria-label="Comando que escribes" placeholder="Escribe el comando..." autocomplete="off" spellcheck="false">
+      <button id="pVal" class="primario" type="button">Validar</button>
+    </div>
+    <div id="pFb" aria-live="polite"></div>
+    <div class="barra">
+      <button id="pSol" type="button">Ver solución</button>
+      <button id="pSig" type="button">Siguiente ejercicio</button>
+    </div>
+  </div>
+  <div class="panel">
+    <h2>Calculadora VLSM</h2>
+    <div class="barra">
+      <label>Hosts requeridos <input type="text" id="vHosts" value="58" inputmode="numeric"></label>
+    </div>
+    <div id="vRes" aria-live="polite"></div>
+    <div class="tabla" id="vTabla"></div>
+  </div>
+</section>
+</main>
+
+<script type="application/json" id="datos-preguntas">
+[
+{"id":1,"tema":"Rutas estáticas","dificultad":"Fácil","tipo":"unica","fija":true,"texto":"En una ruta estática, ¿cuál es la distancia administrativa (AD) por defecto si no se especifica?","opciones":["255","1","90","0"],"correctas":[1],"explicacion":"La AD por defecto de una ruta estática es 1. Las conectadas tienen 0, EIGRP 90, OSPF 110 y RIP 120."},
+{"id":2,"tema":"Rutas estáticas","dificultad":"Fácil","tipo":"unica","texto":"¿Cuál es la sintaxis correcta de una ruta estática IPv4 hacia 192.168.2.0/24 con siguiente salto 192.168.5.2?","opciones":["ip route 192.168.2.0 255.255.255.0 192.168.5.2","ip route 192.168.2.0 192.168.5.2 255.255.255.0","route ip 192.168.2.0 255.255.255.0 192.168.5.2","ip static 192.168.2.0 /24 192.168.5.2"],"correctas":[0],"explicacion":"Formato: ip route <red> <máscara> <siguiente-salto o interfaz-salida>. La máscara va antes del siguiente salto."},
+{"id":3,"tema":"Rutas estáticas","dificultad":"Media","tipo":"multiple","fija":true,"texto":"Para configurar una ruta estática completamente calificada, ¿qué información se necesita? (Elija dos)","opciones":["IP del vecino de siguiente salto","ID de interfaz del vecino","AD para la red destino","ID de interfaz de salida","IP de la interfaz de salida"],"correctas":[0,3],"explicacion":"Una ruta completamente calificada indica la IP del siguiente salto y la interfaz de salida local. La AD es opcional."},
+{"id":4,"tema":"Rutas estáticas","dificultad":"Media","tipo":"unica","texto":"En una LAN Ethernet (multiacceso), ¿qué diferencia hay entre indicar el siguiente salto y la interfaz de salida?","opciones":["El siguiente salto es la IP del vecino; la interfaz de salida es la interfaz local por donde sale el paquete","Son lo mismo: la IP del vecino y la interfaz local tienen el mismo valor","La interfaz de salida es la IP del vecino remoto","El siguiente salto solo se usa en rutas predeterminadas"],"correctas":[0],"explicacion":"El siguiente salto es la IP del router vecino. En Ethernet conviene indicar el siguiente salto, porque con solo la interfaz el router puede tener que resolver cada destino por separado."},
+{"id":5,"tema":"Rutas estáticas","dificultad":"Media","tipo":"unica","texto":"Un router remoto no tiene ruta de regreso hacia la red origen. ¿Qué ocurre?","opciones":["La respuesta no regresa aunque el paquete de ida haya llegado","El router remoto crea la ruta de regreso automáticamente con RIP","La ruta estática se activa solo si su AD es 0","El paquete se reenvía por broadcast"],"correctas":[0],"explicacion":"El tráfico debe ir y volver. Sin ruta de regreso, la comunicación falla en un sentido aunque la ida llegue."},
+{"id":6,"tema":"Rutas estáticas","dificultad":"Media","tipo":"unica","texto":"Hay una ruta estática con AD 5 y una ruta aprendida por EIGRP (AD 90) hacia la misma red. ¿Cuál se instala en la tabla?","opciones":["La EIGRP, porque aprende dinámicamente","La estática, porque tiene menor AD","Ninguna, porque hay conflicto","Ambas, con balanceo de carga"],"correctas":[1],"explicacion":"Gana la ruta con menor AD. 5 es menor que 90, así que se instala la estática. Solo una ruta conectada (AD 0) le ganaría."},
+{"id":7,"tema":"Rutas estáticas","dificultad":"Fácil","tipo":"unica","texto":"Ordena de menor a mayor AD: conectada, estática, EIGRP, OSPF, RIP.","opciones":["0, 1, 90, 110, 120","0, 1, 110, 90, 120","1, 0, 90, 120, 110","0, 90, 1, 110, 120"],"correctas":[0],"explicacion":"Conectada 0, estática 1, EIGRP 90, OSPF 110, RIP 120."},
+{"id":8,"tema":"Rutas estáticas","dificultad":"Media","tipo":"unica","texto":"¿Qué es una ruta estática flotante?","opciones":["Una ruta estática con AD mayor que la de una ruta principal, que actúa como respaldo","Una ruta que se borra automáticamente","Una ruta sin siguiente salto ni interfaz","Una ruta predeterminada en IPv6"],"correctas":[0],"explicacion":"La flotante tiene AD mayor que la ruta principal. Solo entra en la tabla cuando la principal desaparece."},
+{"id":9,"tema":"Rutas estáticas","dificultad":"Media","tipo":"unica","fija":true,"nota":"Razonado, no confirmado: con AD 5 solo una ruta con AD menor a 5 impide que aparezca (conectada 0, estática normal 1). Confirma con el profesor.","texto":"Se configura: ip route 172.16.1.0 255.255.255.0 10.10.10.2 5. ¿Qué ruta debería dejar de aprender el router para que la estática aparezca en la tabla?","opciones":["Una ruta predeterminada","Una ruta EIGRP a 172.16.1.0/24","Una ruta OSPF a 172.16.1.0/24","Otra ruta estática"],"correctas":[3],"explicacion":"El 5 al final es la AD. La estática entra en la tabla si no existe otra ruta a esa red con AD menor. EIGRP (90) y OSPF (110) pierden contra 5; solo otra estática con AD 1 (o una conectada) ganaría."},
+{"id":10,"tema":"Ruta predeterminada","dificultad":"Fácil","tipo":"unica","texto":"¿Cuál es el comando de una ruta predeterminada estática en IPv4?","opciones":["ip route 0.0.0.0 0.0.0.0 <siguiente-salto o interfaz>","ip route 0.0.0.0 255.255.255.255 <siguiente-salto>","ip default route <siguiente-salto>","ip route default <siguiente-salto>"],"correctas":[0],"explicacion":"La ruta 0.0.0.0 0.0.0.0 coincide con cualquier destino que no tenga una ruta más específica."},
+{"id":11,"tema":"Ruta predeterminada","dificultad":"Media","tipo":"unica","fija":true,"texto":"En R1 se quiere una ruta predeterminada que salga por S0/0/1. ¿Cuál es el comando correcto?","opciones":["ip route 0.0.0.0 0.0.0.0 Serial0/0/1","ip route 0.0.0.0 255.255.255.255 Serial0/0/1","ip route 0.0.0.0 0.0.0.0 255.255.255.0 Serial0/0/1","ip default-network Serial0/0/1"],"correctas":[0],"explicacion":"Se usa la máscara 0.0.0.0 y la interfaz de salida S0/0/1. La opción B tiene una máscara incorrecta."},
+{"id":12,"tema":"Ruta predeterminada","dificultad":"Fácil","tipo":"unica","texto":"¿Qué hace la ruta 0.0.0.0/0 en la tabla de un router?","opciones":["Sirve de último recurso para cualquier destino sin ruta más específica","Bloquea el tráfico a Internet","Anuncia todas las redes conectadas","Define la dirección IP del router"],"correctas":[0],"explicacion":"El router usa la ruta más específica que exista; si no hay ninguna, usa la predeterminada."},
+{"id":13,"tema":"Ruta predeterminada","dificultad":"Media","tipo":"unica","texto":"En la tabla de un router aparece la línea S* 0.0.0.0/0. ¿Qué significa la S*?","opciones":["Es una ruta estática y el asterisco indica que es la ruta predeterminada","Es una ruta de EIGRP externa","Es una red directamente conectada","Es una ruta aprendida por RIP"],"correctas":[0],"explicacion":"S indica estática; el asterisco marca la ruta candidata a predeterminada."},
+{"id":14,"tema":"RIPv2","dificultad":"Media","tipo":"unica","fija":true,"texto":"Parámetros del comando network de RIPv2 en R3, que conecta 192.168.6.0/24, 192.168.7.0/24 y 50.0.0.0/24 (la LAN 192.168.3.0 pertenece a R4):","opciones":["192.168.6.0, 192.168.7.0, 50.0.0.0","192.168.6.0, 192.168.7.0, 50.255.255.0","192.168.6.0, 192.168.7.0, 50.0.0.0, 192.168.3.0","192.168.6.0, 192.168.7.0, 192.168.3.0"],"correctas":[0],"explicacion":"RIP usa redes classful en network. 50.0.0.0/24 se escribe 50.0.0.0. La 192.168.3.0 no está conectada a R3."},
+{"id":15,"tema":"RIPv2","dificultad":"Media","tipo":"unica","texto":"¿Qué hace no auto-summary en RIPv2?","opciones":["Evita el resumen automático a la red classful, necesario con VLSM","Apaga RIP en todas las interfaces","Elimina las rutas estáticas","Cambia el temporizador de 30 s"],"correctas":[0],"explicacion":"Sin él, RIPv2 resume subredes a su red classful, lo que rompe VLSM y las redes discontinuas."},
+{"id":16,"tema":"RIPv2","dificultad":"Media","tipo":"unica","texto":"¿Qué hace passive-interface GigabitEthernet0/0 en un router RIP?","opciones":["Impide enviar actualizaciones RIP por esa interfaz; la red sigue anunciándose por las demás","Apaga la interfaz","Hace la interfaz pública en Internet","Elimina la red de la tabla de todos los routers"],"correctas":[0],"explicacion":"Se usa en LAN donde no deben viajar actualizaciones de enrutamiento."},
+{"id":17,"tema":"RIPv2","dificultad":"Media","tipo":"unica","texto":"¿Qué hace default-information originate en RIP?","opciones":["Anuncia la ruta predeterminada 0.0.0.0/0 a los vecinos RIP","Crea una ruta estática en cada router","Cambia la AD de RIP a 90","Apaga la ruta predeterminada del router"],"correctas":[0],"explicacion":"Solo se usa en el router que tiene la ruta predeterminada (en el escenario, R1)."},
+{"id":18,"tema":"RIPv2","dificultad":"Fácil","tipo":"unica","texto":"¿Cuál es el límite de saltos de RIP y qué significa 16?","opciones":["15 saltos; 16 es inalcanzable","16 saltos; 16 es la AD","30 saltos; 16 es el timer","255 saltos; 16 es el puerto"],"correctas":[0],"explicacion":"RIP admite hasta 15 saltos. Una métrica de 16 se considera inalcanzable."},
+{"id":19,"tema":"RIPv2","dificultad":"Fácil","tipo":"unica","texto":"¿Cada cuánto envía RIP sus actualizaciones periódicas por defecto?","opciones":["10 s","30 s","60 s","90 s"],"correctas":[1],"explicacion":"RIP envía su tabla completa cada 30 segundos."},
+{"id":20,"tema":"RIPv2","dificultad":"Media","tipo":"unica","texto":"Para anunciar en RIPv2 la subred 192.168.6.0/24, ¿qué valor se pone en network?","opciones":["192.168.6.0","192.168.6.0 255.255.255.0","192.168.6.0/24","192.168.6.1"],"correctas":[0],"explicacion":"En RIPv2, network usa la red classful (solo la dirección de red), sin máscara."},
+{"id":21,"tema":"Tabla de enrutamiento","dificultad":"Difícil","tipo":"unica","fija":true,"nota":"Verifica con el profesor: la opción A también parece válida según la topología (50.0.0.0 vía R2 y R3 suma 2 saltos).","texto":"Topología: R0 se conecta con R2 (192.168.2.0/24), R1 (192.168.5.0/24) y RCS (200.0.0.0/24). R1 tiene la LAN 30.0.0.0/24. ¿Cuál es una ruta válida en la tabla de R0?","opciones":["R 50.0.0.0 [120/2] via 192.168.2.2, Serial0/0/0","S* 0.0.0.0/0 is directly connected, GigabitEthernet0/0","R 50.0.0.0 /24 [120/2] via 192.168.4.2, Ethernet0/0","R 30.0.0.0 [120/1] via 192.168.5.2, Serial0/0/0"],"correctas":[3],"explicacion":"R0 llega a 30.0.0.0/24 por R1 (192.168.5.2). La red está a un salto del vecino, así que la métrica RIP es 1. La opción C usa 192.168.4.0, que no existe en la topología. La opción B es una predeterminada sin relación con el escenario."},
+{"id":22,"tema":"Tabla de enrutamiento","dificultad":"Fácil","tipo":"unica","texto":"En show ip route, ¿qué código identifica una ruta estática?","opciones":["C","S","R","L"],"correctas":[1],"explicacion":"C conectada, S estática, R RIP, L dirección local de la interfaz."},
+{"id":23,"tema":"Tabla de enrutamiento","dificultad":"Fácil","tipo":"unica","texto":"En show ip route, ¿qué representa el código L?","opciones":["Una red LAN aprendida por RIP","La dirección IP local de una interfaz (máscara /32)","Una ruta de respaldo redundante","Una ruta rechazada por filtro"],"correctas":[1],"explicacion":"L muestra la IP propia de cada interfaz activa, con máscara /32."},
+{"id":24,"tema":"Tabla de enrutamiento","dificultad":"Media","tipo":"unica","texto":"En show ip route, ¿qué indica el código R?","opciones":["Ruta aprendida por RIP","Ruta de respaldo redundante","Ruta rechazada","Ruta de retorno del ISP"],"correctas":[0],"explicacion":"R = RIP. En [120/n], 120 es la AD y n la métrica (saltos)."},
+{"id":25,"tema":"VLSM y direccionamiento","dificultad":"Media","tipo":"unica","fija":true,"texto":"LAN1 necesita 58 hosts. ¿Qué máscara (prefijo) es la mínima adecuada?","opciones":["/27 (255.255.255.224)","/26 (255.255.255.192)","/25 (255.255.255.128)","/28 (255.255.255.240)"],"correctas":[1],"explicacion":"58 + 2 = 60 direcciones. Un /26 tiene 64 (62 usables). Un /27 solo tiene 30 usables."},
+{"id":26,"tema":"VLSM y direccionamiento","dificultad":"Media","tipo":"unica","fija":true,"texto":"LAN3 necesita 28 hosts. ¿Qué prefijo mínimo corresponde?","opciones":["/26","/27","/28","/29"],"correctas":[1],"explicacion":"28 + 2 = 30 ≤ 32. Un /27 tiene 30 usables."},
+{"id":27,"tema":"VLSM y direccionamiento","dificultad":"Media","tipo":"unica","fija":true,"texto":"LAN5 necesita 12 hosts. ¿Qué prefijo mínimo corresponde?","opciones":["/27","/28","/29","/30"],"correctas":[1],"explicacion":"12 + 2 = 14 ≤ 16. Un /28 tiene 14 usables."},
+{"id":28,"tema":"VLSM y direccionamiento","dificultad":"Media","tipo":"unica","fija":true,"texto":"LAN7 necesita 5 hosts. ¿Qué prefijo mínimo corresponde?","opciones":["/28","/29","/30","/27"],"correctas":[1],"explicacion":"5 + 2 = 7 ≤ 8. Un /29 tiene 6 usables."},
+{"id":29,"tema":"VLSM y direccionamiento","dificultad":"Fácil","tipo":"unica","texto":"¿Cuántos hosts usables tiene un /26?","opciones":["64","62","30","126"],"correctas":[1],"explicacion":"2^6 = 64 direcciones, menos la de red y la de broadcast = 62."},
+{"id":30,"tema":"VLSM y direccionamiento","dificultad":"Media","tipo":"unica","texto":"Un bloque /27 empieza en 192.168.1.0. ¿Cuál es la siguiente subred?","opciones":["192.168.1.16","192.168.1.32","192.168.1.64","192.168.1.30"],"correctas":[1],"explicacion":"Un /27 tiene 32 direcciones, así que el salto de bloque es 32."},
+{"id":31,"tema":"VLSM y direccionamiento","dificultad":"Fácil","tipo":"unica","texto":"¿Qué máscara decimal corresponde a /29?","opciones":["255.255.255.224","255.255.255.248","255.255.255.240","255.255.255.252"],"correctas":[1],"explicacion":"/29 = 255.255.255.248. Tiene 3 bits de host: 8 direcciones por bloque."},
+{"id":32,"tema":"VLSM y direccionamiento","dificultad":"Media","tipo":"unica","texto":"Una LAN necesita 25 hosts. ¿Qué prefijo mínimo se usa?","opciones":["/26","/27","/28","/29"],"correctas":[1],"explicacion":"25 + 2 = 27 ≤ 32, así que /27."},
+{"id":33,"tema":"VLSM y direccionamiento","dificultad":"Fácil","tipo":"unica","texto":"¿Qué permite VLSM?","opciones":["Usar máscaras distintas según la cantidad de hosts de cada red","Usar la misma máscara en todas las redes sin desperdicio","Eliminar la necesidad de direcciones IP","Cambiar la velocidad del enlace"],"correctas":[0],"explicacion":"VLSM asigna a cada subred el prefijo que necesita según sus hosts."},
+{"id":34,"tema":"WAN y PPP","dificultad":"Fácil","tipo":"unica","texto":"¿Qué encapsulamiento usa por defecto una interfaz serial en Cisco?","opciones":["PPP","HDLC","Frame Relay","Ethernet"],"correctas":[1],"explicacion":"HDLC es el valor por defecto (propietario de Cisco). Para autenticación se cambia a PPP."},
+{"id":35,"tema":"WAN y PPP","dificultad":"Fácil","tipo":"unica","texto":"¿Qué autenticación PPP envía la contraseña en texto claro en dos vías?","opciones":["CHAP","PAP","MD5","Ninguna"],"correctas":[1],"explicacion":"PAP envía usuario y contraseña en claro; por eso es menos seguro que CHAP."},
+{"id":36,"tema":"WAN y PPP","dificultad":"Media","tipo":"unica","texto":"¿Cuántos mensajes intercambia CHAP en su handshake?","opciones":["2","3","4","5"],"correctas":[1],"explicacion":"Tres: desafío (challenge), respuesta con hash (response) y resultado (success o failure). La contraseña nunca viaja en claro."},
+{"id":37,"tema":"WAN y PPP","dificultad":"Media","tipo":"multiple","texto":"¿Qué dos ventajas tiene PPP frente a HDLC? (Elija dos)","opciones":["Soporta autenticación PAP y CHAP","Es propietario de Cisco","Es un estándar abierto con soporte multiprotocolo","No tiene encapsulamiento"],"correctas":[0,2],"explicacion":"PPP es estándar abierto, multiprotocolo y con autenticación. HDLC es propietario y sin autenticación nativa."},
+{"id":38,"tema":"WAN y PPP","dificultad":"Fácil","tipo":"unica","texto":"¿Qué comando activa PPP en una interfaz serial?","opciones":["encapsulation ppp","ppp enable","protocol ppp","set encap ppp"],"correctas":[0],"explicacion":"encapsulation ppp se configura dentro de la interfaz serial."},
+{"id":39,"tema":"Transporte TCP/UDP","dificultad":"Media","tipo":"unica","fija":true,"nota":"Las opciones A a C del examen original tienen errores tipográficos (por ejemplo 'TPC'). La opción D es la versión corregida.","texto":"Un FTP envía un archivo a un servidor en 6 segmentos y se reenvían los primeros 3 (retransmisión con acuse). ¿Qué protocolo de transporte y de aplicación corresponden?","opciones":["TCP y UDP sin aplicación","UDP y TFTP","UDP y FTP","TCP y FTP"],"correctas":[3],"explicacion":"FTP usa TCP, que confirma con acuses y retransmite los segmentos perdidos. Ninguna de las opciones originales era correcta tal cual: la respuesta es TCP y FTP."},
+{"id":40,"tema":"Transporte TCP/UDP","dificultad":"Media","tipo":"unica","fija":true,"texto":"Secuencia con TFTP y sin acuse de recibo. ¿Qué transporte y aplicación corresponden?","opciones":["UDP y TFTP","TCP y TFTP","TCP y FTP","UDP y FTP"],"correctas":[0],"explicacion":"TFTP funciona sobre UDP, sin conexión ni acuse de recibo a nivel de transporte."},
+{"id":41,"tema":"Transporte TCP/UDP","dificultad":"Fácil","tipo":"unica","texto":"¿Cuál es la secuencia del establecimiento de conexión TCP (three-way handshake)?","opciones":["SYN, SYN-ACK, ACK","SYN, ACK, FIN","ACK, SYN, FIN-ACK","FIN, FIN-ACK, RST"],"correctas":[0],"explicacion":"El cliente envía SYN, el servidor responde SYN-ACK y el cliente confirma con ACK."},
+{"id":42,"tema":"Transporte TCP/UDP","dificultad":"Fácil","tipo":"unica","texto":"¿Qué característica distingue a UDP de TCP?","opciones":["No establece conexión ni garantiza entrega con acuses","Usa handshake de tres vías","Controla la ventana de recepción","Retransmite cada segmento perdido"],"correctas":[0],"explicacion":"UDP es sin conexión y sin acuse; es más ligero pero no confiable."},
+{"id":43,"tema":"Transporte TCP/UDP","dificultad":"Media","tipo":"unica","texto":"¿Qué controla el tamaño de ventana en TCP?","opciones":["Cuántos bytes puede enviar el emisor sin esperar acuse (control de flujo)","El puerto de origen","La MTU del enlace","El cifrado de la sesión"],"correctas":[0],"explicacion":"La ventana limita los datos pendientes de acuse y regula el flujo."},
+{"id":44,"tema":"Transporte TCP/UDP","dificultad":"Fácil","tipo":"unica","texto":"Un cliente abre una conexión TCP a un servidor web. ¿Cómo se elige el puerto de origen del cliente?","opciones":["Es aleatorio o dinámico (normalmente 1024-65535)","Es siempre 80","Es el mismo que el puerto de destino","Es siempre 21"],"correctas":[0],"explicacion":"El puerto de destino es conocido (80). El de origen es temporal y aleatorio para identificar la sesión."},
+{"id":45,"tema":"Aplicación y puertos","dificultad":"Media","tipo":"unica","fija":true,"texto":"Emparejar protocolo de aplicación con transporte. ¿Cuál alternativa es correcta?","opciones":["FTP, HTTP, SMTP con TCP; DNS, TFTP con UDP","FTP, DNS con TCP; HTTP, SMTP, TFTP con UDP","FTP, HTTP, TFTP con TCP; SMTP, DNS con UDP","FTP, SMTP con UDP; HTTP, DNS, TFTP con TCP"],"correctas":[0],"explicacion":"FTP, HTTP y SMTP usan TCP. DNS (para consultas) y TFTP usan UDP. DNS también usa TCP para transferencias de zona."},
+{"id":46,"tema":"Aplicación y puertos","dificultad":"Media","tipo":"rellenar","fija":true,"texto":"Un cliente 192.168.1.5 abre dos sesiones: FTP con puerto origen 1305 y web con puerto origen 1099.\n\nEl puerto destino del servidor FTP (control) es ____. El puerto destino del servidor web es ____.","blancos":[["21"],["80"]],"explicacion":"El puerto de origen es temporal (1305 y 1099). El destino es el puerto bien conocido de cada servicio: FTP 21 y HTTP 80."},
+{"id":47,"tema":"Aplicación y puertos","dificultad":"Fácil","tipo":"unica","texto":"¿Qué puerto y protocolo usa SMTP?","opciones":["25 TCP","25 UDP","110 TCP","143 TCP"],"correctas":[0],"explicacion":"SMTP envía correo por TCP 25. 110 es POP3 y 143 es IMAP."},
+{"id":48,"tema":"Aplicación y puertos","dificultad":"Fácil","tipo":"unica","texto":"¿Qué puerto y protocolo usa TFTP?","opciones":["69 TCP","69 UDP","21 UDP","80 UDP"],"correctas":[1],"explicacion":"TFTP usa UDP 69."},
+{"id":49,"tema":"Aplicación y puertos","dificultad":"Fácil","tipo":"unica","texto":"¿Qué puerto de control usa FTP?","opciones":["20 TCP","21 TCP","21 UDP","23 TCP"],"correctas":[1],"explicacion":"El control de FTP usa TCP 21. Los datos usan TCP 20 en modo activo."},
+{"id":50,"tema":"Aplicación y puertos","dificultad":"Media","tipo":"unica","texto":"¿Qué protocolo y puerto usa DNS para consultas comunes?","opciones":["UDP 53","TCP 25","UDP 69","TCP 80"],"correctas":[0],"explicacion":"DNS consulta por UDP 53; usa TCP 53 para respuestas grandes o transferencias de zona."},
+{"id":51,"tema":"Aplicación y puertos","dificultad":"Fácil","tipo":"unica","texto":"¿Qué rango de puertos son los bien conocidos (well-known)?","opciones":["0 a 1023","1024 a 49151","49152 a 65535","1 a 255"],"correctas":[0],"explicacion":"0-1023 son bien conocidos; 1024-49151 registrados; 49152-65535 dinámicos."},
+{"id":52,"tema":"Escenario Monterrico","dificultad":"Media","tipo":"unica","texto":"Escenario Monterrico (hub-and-spoke). En Monterrico, ¿cuál es la ruta hacia la LAN de San Miguel (10.10.30.0/24), con siguiente salto en el enlace de San Miguel (10.100.20.0/30)?","opciones":["ip route 10.10.30.0 255.255.255.0 10.100.20.1","ip route 10.10.30.0 255.255.255.0 10.100.20.2","ip route 10.10.20.0 255.255.255.0 10.100.20.2","ip route 10.10.30.0 255.0.0.0 10.100.20.2"],"correctas":[1],"explicacion":"La red destino es 10.10.30.0/24 y el siguiente salto es la IP de San Miguel (.2). La .1 es la IP de Monterrico."},
+{"id":53,"tema":"Escenario Monterrico","dificultad":"Media","tipo":"unica","texto":"Escenario Monterrico. En San Isidro (10.100.10.0/30), ¿cuál es la ruta predeterminada hacia Monterrico?","opciones":["ip route 0.0.0.0 0.0.0.0 10.100.10.2","ip route 0.0.0.0 0.0.0.0 10.100.10.1","ip route 0.0.0.0 0.0.0.0 200.100.100.1","ip route 0.0.0.0 0.0.0.0 10.10.10.1"],"correctas":[1],"explicacion":"El siguiente salto es la IP de Monterrico en ese enlace: 10.100.10.1."},
+{"id":54,"tema":"Escenario Monterrico","dificultad":"Media","tipo":"unica","texto":"Escenario Monterrico. En Monterrico, ¿cuál es la ruta predeterminada hacia el ISP (200.100.100.0/30, con el ISP en .2)?","opciones":["ip route 0.0.0.0 0.0.0.0 200.100.100.2","ip route 0.0.0.0 0.0.0.0 200.100.100.1","ip route 0.0.0.0 0.0.0.0 10.100.10.1","ip route 0.0.0.0 0.0.0.0 195.100.100.2"],"correctas":[0],"explicacion":"El siguiente salto es el ISP, IP .2. La .1 es la de Monterrico."},
+{"id":55,"tema":"Escenario Monterrico","dificultad":"Media","tipo":"unica","fija":true,"texto":"Escenario Monterrico. El ISP necesita una ruta de regreso hacia la red 10.0.0.0/8. ¿Cuál es el comando?","opciones":["ip route 10.0.0.0 255.0.0.0 200.100.100.2","ip route 10.0.0.0 255.0.0.0 200.100.100.1","ip route 200.100.100.0 255.255.255.252 10.0.0.1","ip route 0.0.0.0 0.0.0.0 200.100.100.1"],"correctas":[1],"explicacion":"El ISP envía la respuesta a 10.0.0.0/8 hacia Monterrico (200.100.100.1). La opción A apunta a su propia IP."},
+{"id":56,"tema":"Escenario Monterrico","dificultad":"Difícil","tipo":"unica","texto":"Escenario Monterrico. ¿Qué pasaría si la ruta a San Miguel usa 10.100.20.1 como siguiente salto desde Monterrico?","opciones":["Sería incorrecto: .1 es la IP del propio Monterrico en ese enlace","Funciona igual que .2","Se usaría la ruta predeterminada del ISP","Se crea una ruta de regreso automática"],"correctas":[0],"explicacion":"El siguiente salto debe ser el vecino, no la interfaz propia del router."},
+{"id":57,"tema":"Evaluación (habilidades)","dificultad":"Media","tipo":"unica","texto":"En la tarea de enrutamiento dinámico, ¿en qué routers se configuran version 2 y no auto-summary?","opciones":["Solo en R1","Solo en R2 y R3","En R1, R2 y R3","Ninguno"],"correctas":[2],"explicacion":"RIPv2 se configura en los tres routers (R1, R2 y R3)."},
+{"id":58,"tema":"Evaluación (habilidades)","dificultad":"Media","tipo":"unica","texto":"En la tarea de habilidades, ¿en qué routers se usa default-information originate?","opciones":["En R1 solamente, donde está la ruta predeterminada","En R2 y R3","En los tres","En R3 solamente"],"correctas":[0],"explicacion":"Solo el router que tiene la salida (R1) lo anuncia. R2 y R3 no lo llevan."},
+{"id":59,"tema":"Evaluación (habilidades)","dificultad":"Fácil","tipo":"unica","texto":"¿Para qué sirve copy running-config startup-config al final de cada router?","opciones":["Guarda la configuración para que sobreviva al reinicio","Copia la tabla de enrutamiento a otro router","Elimina la configuración anterior","Activa RIP"],"correctas":[0],"explicacion":"La running-config está en RAM; la startup-config se guarda en NVRAM."}
+]
+</script>
+
+<script type="application/json" id="datos-tarjetas">
+[
+{"tema":"AD (distancia administrativa)","frente":"AD de una ruta conectada","dorso":"0"},
+{"tema":"AD (distancia administrativa)","frente":"AD de una ruta estática por defecto","dorso":"1"},
+{"tema":"AD (distancia administrativa)","frente":"AD de EIGRP interno","dorso":"90"},
+{"tema":"AD (distancia administrativa)","frente":"AD de OSPF","dorso":"110"},
+{"tema":"AD (distancia administrativa)","frente":"AD de RIP","dorso":"120"},
+{"tema":"AD (distancia administrativa)","frente":"¿Qué ruta gana en la tabla?","dorso":"La de menor AD. Si hay empate para el mismo prefijo, gana la de menor métrica."},
+{"tema":"Rutas estáticas","frente":"Sintaxis de ruta estática IPv4","dorso":"ip route <red-destino> <máscara> <siguiente-salto | interfaz-salida> [AD]"},
+{"tema":"Rutas estáticas","frente":"Ruta predeterminada estática","dorso":"ip route 0.0.0.0 0.0.0.0 <siguiente-salto | interfaz-salida>"},
+{"tema":"Rutas estáticas","frente":"Ruta estática flotante","dorso":"Ruta estática con AD mayor que la ruta principal. Actúa de respaldo y entra solo si la principal desaparece."},
+{"tema":"Siguiente salto vs interfaz","frente":"¿Qué es el siguiente salto?","dorso":"La IP del router vecino al que se entrega el paquete, en la red compartida."},
+{"tema":"Siguiente salto vs interfaz","frente":"¿Cuándo usar la interfaz de salida?","dorso":"Sobre todo en enlaces punto a punto (serial). En Ethernet suele preferirse el siguiente salto."},
+{"tema":"Ruta de regreso","frente":"¿Qué es la ruta de regreso?","dorso":"La ruta que el destino necesita para devolver la respuesta. Sin ella, la ida llega pero la respuesta no."},
+{"tema":"Ruta de regreso","frente":"Ejemplo de ruta de regreso (escenario Monterrico)","dorso":"En el ISP: ip route 10.0.0.0 255.0.0.0 200.100.100.1"},
+{"tema":"RIPv2","frente":"Comandos base de RIPv2","dorso":"router rip, version 2, no auto-summary, network <redes classful conectadas>"},
+{"tema":"RIPv2","frente":"Parámetro network en RIP","dorso":"Red classful (192.168.6.0, 50.0.0.0), sin subredes ni máscara."},
+{"tema":"RIPv2","frente":"passive-interface en RIP","dorso":"No envía actualizaciones por esa interfaz (por ejemplo la LAN). La red sigue anunciándose por las demás."},
+{"tema":"RIPv2","frente":"default-information originate","dorso":"Solo en el router que tiene la ruta predeterminada (R1). La propaga a los vecinos."},
+{"tema":"RIPv2","frente":"Límites de RIP","dorso":"Máximo 15 saltos (16 = inalcanzable). Actualizaciones cada 30 s. AD 120."},
+{"tema":"Puertos TCP/UDP","frente":"FTP","dorso":"21 TCP (control). Datos: 20 TCP."},
+{"tema":"Puertos TCP/UDP","frente":"HTTP","dorso":"80 TCP"},
+{"tema":"Puertos TCP/UDP","frente":"DNS","dorso":"53 UDP (consultas). TCP 53 para transferencias de zona."},
+{"tema":"Puertos TCP/UDP","frente":"SMTP","dorso":"25 TCP"},
+{"tema":"Puertos TCP/UDP","frente":"TFTP","dorso":"69 UDP"},
+{"tema":"Puertos TCP/UDP","frente":"SSH y Telnet","dorso":"SSH 22 TCP. Telnet 23 TCP."},
+{"tema":"Puerto origen y destino","frente":"Puerto de destino","dorso":"Bien conocido (0-1023) o registrado. Identifica el servicio en el servidor."},
+{"tema":"Puerto origen y destino","frente":"Puerto de origen","dorso":"Temporal y aleatorio (normalmente 1024-65535). Identifica la sesión en el cliente."},
+{"tema":"Puerto origen y destino","frente":"Ejemplo: cliente 192.168.1.5, FTP con origen 1305","dorso":"Destino 21 en el servidor. El origen 1305 es temporal."},
+{"tema":"PPP básico","frente":"Encapsulamiento por defecto en serial Cisco","dorso":"HDLC (propietario). Para autenticación se usa PPP."},
+{"tema":"PPP básico","frente":"PAP","dorso":"Dos vías. Usuario y contraseña en texto claro."},
+{"tema":"PPP básico","frente":"CHAP","dorso":"Tres vías con desafío y hash. La contraseña no viaja en claro."},
+{"tema":"PPP básico","frente":"Comando para activar PPP","dorso":"encapsulation ppp (dentro de la interfaz serial)"},
+{"tema":"VLSM","frente":"Hosts usables de un prefijo","dorso":"2^(bits de host) - 2"},
+{"tema":"VLSM","frente":"Ejemplo: 58 hosts","dorso":"Necesita 60 direcciones: /26 (62 usables)."},
+{"tema":"VLSM","frente":"Ejemplo: 28 hosts","dorso":"/27 (30 usables)"},
+{"tema":"VLSM","frente":"Cómo elegir el prefijo mínimo","dorso":"Menor n con 2^n - 2 mayor o igual que los hosts. Prefijo = 32 - n."}
+]
+</script>
+
+<script type="application/json" id="datos-ejercicios">
+[
+{"escenario":"Monterrico tiene 10.100.20.1 en el enlace con San Miguel (10.100.20.0/30). San Miguel tiene 10.100.20.2 y su LAN es 10.10.30.0/24.","instruccion":"Escribe el comando de ruta estática en Monterrico hacia la LAN de San Miguel.","aceptar":["ip route 10.10.30.0 255.255.255.0 10.100.20.2","ip route 10.10.30.0/24 10.100.20.2"],"solucion":"ip route 10.10.30.0 255.255.255.0 10.100.20.2","explicacion":"Red destino, máscara y siguiente salto (la IP de San Miguel)."},
+{"escenario":"Monterrico tiene el enlace al ISP 200.100.100.0/30 (Monterrico .1, ISP .2). Quieres que todo el tráfico no local salga por el ISP.","instruccion":"Escribe la ruta predeterminada en Monterrico.","aceptar":["ip route 0.0.0.0 0.0.0.0 200.100.100.2","ip route 0.0.0.0/0 200.100.100.2"],"solucion":"ip route 0.0.0.0 0.0.0.0 200.100.100.2","explicacion":"La predeterminada usa 0.0.0.0 0.0.0.0 y el siguiente salto es el ISP (.2)."},
+{"escenario":"El ISP necesita volver a la red 10.0.0.0/8 de Monterrico. Su enlace con Monterrico es 200.100.100.0/30 (Monterrico tiene .1).","instruccion":"Escribe la ruta de regreso en el ISP.","aceptar":["ip route 10.0.0.0 255.0.0.0 200.100.100.1","ip route 10.0.0.0/8 200.100.100.1"],"solucion":"ip route 10.0.0.0 255.0.0.0 200.100.100.1","explicacion":"Sin esta ruta, las respuestas no regresan a la red interna."},
+{"escenario":"San Isidro (10.100.10.0/30) es un spoke. Monterrico tiene 10.100.10.1 en ese enlace.","instruccion":"Escribe la ruta predeterminada en San Isidro hacia Monterrico.","aceptar":["ip route 0.0.0.0 0.0.0.0 10.100.10.1","ip route 0.0.0.0/0 10.100.10.1"],"solucion":"ip route 0.0.0.0 0.0.0.0 10.100.10.1","explicacion":"Los spokes envían todo lo no local a su hub."},
+{"escenario":"R1 tiene su salida hacia Internet por la interfaz Serial0/0/1.","instruccion":"Escribe la ruta predeterminada estática en R1 por S0/0/1.","aceptar":["ip route 0.0.0.0 0.0.0.0 s0/0/1","ip route 0.0.0.0/0 s0/0/1"],"solucion":"ip route 0.0.0.0 0.0.0.0 Serial0/0/1","explicacion":"Se usa 0.0.0.0 0.0.0.0 y la interfaz de salida como destino."},
+{"escenario":"En R3, RIPv2 debe anunciar la red classful 192.168.6.0 (el enlace con R2).","instruccion":"Escribe el comando dentro de router rip para anunciar esa red.","aceptar":["network 192.168.6.0"],"solucion":"network 192.168.6.0","explicacion":"En RIP se pone la red classful, no la máscara."},
+{"escenario":"Estás dentro de router rip en R1 y debes evitar el resumen automático a la red classful.","instruccion":"Escribe el comando.","aceptar":["no auto-summary"],"solucion":"no auto-summary","explicacion":"Es necesario para VLSM en RIPv2."},
+{"escenario":"R1 tiene la ruta predeterminada y debe anunciarla a sus vecinos RIP.","instruccion":"Escribe el comando dentro de router rip.","aceptar":["default-information originate"],"solucion":"default-information originate","explicacion":"Solo en R1, el router que tiene la ruta predeterminada."},
+{"escenario":"En R1, la LAN conectada a GigabitEthernet0/0 no debe recibir actualizaciones RIP.","instruccion":"Escribe el comando dentro de router rip.","aceptar":["passive-interface gigabitethernet0/0","passive-interface gi0/0"],"solucion":"passive-interface GigabitEthernet0/0","explicacion":"passive-interface evita enviar actualizaciones por esa interfaz."}
+]
+</script>
+
+<script>
+const $ = id => document.getElementById(id);
+const leer = id => JSON.parse($(id).textContent);
+const PREG = leer('datos-preguntas'), TARJ = leer('datos-tarjetas'), EJER = leer('datos-ejercicios');
+const KEY = 'repaso-pc2-v1';
+let est = {falladas: [], total: 0, racha: 0, mejor: 0};
+try { est = {...est, ...JSON.parse(localStorage.getItem(KEY) || '{}')}; } catch (e) {}
+const guardar = () => { try { localStorage.setItem(KEY, JSON.stringify(est)); } catch (e) {} };
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const norm = s => String(s).trim().toLowerCase().replace(/\s+/g, ' ');
+const shuffle = a => { a = [...a]; for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+const show = (id, on) => $(id).classList.toggle('hidden', !on);
+const L = k => String.fromCharCode(65 + k);
+
+// Tabs
+const tabs = [...document.querySelectorAll('[role=tab]')];
+tabs.forEach(t => t.addEventListener('click', () => {
+  tabs.forEach(x => x.setAttribute('aria-selected', x === t));
+  ['quiz', 'sim', 'banco', 'practica', 'capturas'].forEach(n => $('s-' + n).classList.toggle('hidden', n !== t.dataset.tab));
+}));
+
+// Helpers de preguntas
+function htmlPreg(p) {
+  let ctrl;
+  if (p.tipo === 'rellenar') {
+    ctrl = p.blancos.map((b, k) => `<label class="blanco">Espacio ${k + 1}: <input type="text" data-b="${k}" autocomplete="off" spellcheck="false"></label>`).join('');
+  } else {
+    const typ = p.tipo === 'multiple' ? 'checkbox' : 'radio';
+    const leg = p.tipo === 'multiple' ? `Elija ${p.correctas.length}` : 'Elija una opción';
+    const max = p.tipo === 'multiple' ? ` data-max="${p.correctas.length}"` : '';
+    ctrl = `<fieldset><legend>${leg}</legend>` + p.opciones.map((o, k) =>
+      `<label class="op"><input type="${typ}" name="r" value="${k}"${max}><span><b>${L(k)}.</b> ${esc(o)}</span></label>`).join('') + '</fieldset>';
+  }
+  return `<p class="meta">${esc(p.tema)} · ${esc(p.dificultad)}${p.fija ? ' · <span class="tag">Examen</span>' : ''}</p><p class="enun">${esc(p.texto)}</p>${ctrl}`;
+}
+function leerResp(root, p) {
+  if (p.tipo === 'rellenar') return [...root.querySelectorAll('[data-b]')].map(i => i.value);
+  return [...root.querySelectorAll('input:checked')].map(i => +i.value);
+}
+function aplicarResp(root, p, r) {
+  if (!r) return;
+  if (p.tipo === 'rellenar') root.querySelectorAll('[data-b]').forEach((i, k) => i.value = r[k] || '');
+  else root.querySelectorAll('input').forEach((i, k) => i.checked = r.includes(k));
+}
+function correcta(p, r) {
+  if (p.tipo === 'rellenar') return p.blancos.every((ac, k) => ac.some(a => norm(r[k] || '') === norm(a)));
+  const ord = x => [...x].sort((a, b) => a - b).join();
+  return r.length === p.correctas.length && ord(r) === ord(p.correctas);
+}
+function textoCorrecta(p) {
+  if (p.tipo === 'rellenar') return p.blancos.map((b, k) => `espacio ${k + 1}: ${b[0]}`).join('; ');
+  return p.correctas.map(k => `${L(k)}. ${p.opciones[k]}`).join(' | ');
+}
+document.addEventListener('change', e => {
+  const t = e.target;
+  if (t.type !== 'checkbox' || !t.dataset.max) return;
+  const grupo = t.closest('#quizBox, #simBox');
+  if (grupo && grupo.querySelectorAll('input:checked').length > +t.dataset.max) t.checked = false;
+});
+
+// ---------- Quiz ----------
+const Q = {cola: [], i: 0, ok: 0, n: 0};
+const temas = [...new Set(PREG.map(p => p.tema))];
+$('fTema').innerHTML = '<option value="Todos">Todos los temas</option>' + temas.map(t => `<option value="${esc(t)}">${esc(t)}</option>`).join('');
+function stats() {
+  $('sRacha').textContent = est.racha;
+  $('sMejor').textContent = est.mejor;
+  $('sTotal').textContent = est.total;
+  $('bFalladas').textContent = `Repetir falladas (${est.falladas.length})`;
+  $('sPuntaje').textContent = `${Q.ok}/${Q.n}`;
+}
+function nuevaRonda(soloFalladas) {
+  const t = $('fTema').value;
+  let base = PREG.filter(p => t === 'Todos' || p.tema === t);
+  if (soloFalladas) base = base.filter(p => est.falladas.includes(p.id));
+  Q.cola = shuffle(base); Q.i = 0; Q.ok = 0; Q.n = 0;
+  $('fb').innerHTML = '';
+  if (!Q.cola.length) {
+    $('quizBox').innerHTML = `<p>${soloFalladas ? 'No tienes preguntas falladas en esta selección.' : 'No hay preguntas en este tema.'}</p>`;
+    $('sPos').textContent = ''; show('bComprobar', false); show('bSig', false); stats();
+    return;
+  }
+  show('bComprobar', true); show('bSig', false);
+  mostrar(); stats();
+}
+function mostrar() {
+  const p = Q.cola[Q.i];
+  $('quizBox').innerHTML = htmlPreg(p);
+  $('fb').innerHTML = '';
+  $('sPos').textContent = `${Q.i + 1} de ${Q.cola.length}`;
+  show('bComprobar', true); show('bSig', false);
+}
+$('bComprobar').onclick = () => {
+  const box = $('quizBox'), p = Q.cola[Q.i], r = leerResp(box, p);
+  const vacia = p.tipo === 'rellenar' ? r.some(x => !x.trim()) : r.length === 0;
+  if (vacia) { $('fb').innerHTML = '<p class="nota">Responde antes de comprobar.</p>'; return; }
+  const ok = correcta(p, r);
+  Q.n++; if (ok) Q.ok++;
+  if (ok) {
+    est.racha++; est.mejor = Math.max(est.mejor, est.racha);
+    est.falladas = est.falladas.filter(x => x !== p.id);
+  } else {
+    est.racha = 0;
+    if (!est.falladas.includes(p.id)) est.falladas.push(p.id);
+  }
+  est.total++; guardar(); stats();
+  box.querySelectorAll('input').forEach(i => i.disabled = true);
+  if (p.tipo !== 'rellenar') box.querySelectorAll('label.op').forEach((l, k) => {
+    if (p.correctas.includes(k)) l.classList.add('ok');
+    else if (r.includes(k)) l.classList.add('mal');
+  });
+  $('fb').innerHTML = `<div class="fb ${ok ? 'ok' : 'mal'}" role="status"><p><b>${ok ? '¡Correcto!' : 'Incorrecto.'}</b> Respuesta: ${esc(textoCorrecta(p))}</p><p>${esc(p.explicacion)}</p>${p.nota ? `<p class="nota">${esc(p.nota)}</p>` : ''}</div>`;
+  show('bComprobar', false); show('bSig', true);
+  $('bSig').textContent = Q.i + 1 < Q.cola.length ? 'Siguiente' : 'Ver resultado';
+  $('bSig').focus();
+};
+$('bSig').onclick = () => {
+  Q.i++;
+  if (Q.i < Q.cola.length) return mostrar();
+  $('quizBox').innerHTML = `<h2>Ronda terminada</h2><p>Puntaje: <b>${Q.ok}/${Q.n}</b>. Racha actual: ${est.racha}.</p>`;
+  $('fb').innerHTML = ''; $('sPos').textContent = '';
+  show('bComprobar', false); show('bSig', false);
+};
+$('bNueva').onclick = () => nuevaRonda(false);
+$('bFalladas').onclick = () => nuevaRonda(true);
+$('fTema').onchange = () => nuevaRonda(false);
+
+// ---------- Simulacro ----------
+const S = {cola: [], i: 0, resp: [], fin: 0, timer: null, activo: false};
+function tick() {
+  const ms = Math.max(0, S.fin - Date.now());
+  const m = Math.floor(ms / 60000), s = Math.floor(ms / 1000) % 60;
+  $('simTimer').textContent = `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+  if (ms === 0) terminarSim();
+}
+function guardarSim() { if (S.activo) S.resp[S.i] = leerResp($('simBox'), S.cola[S.i]); }
+function pintarSim() {
+  const p = S.cola[S.i];
+  $('simBox').innerHTML = htmlPreg(p);
+  aplicarResp($('simBox'), p, S.resp[S.i]);
+  $('simProg').textContent = `Pregunta ${S.i + 1} de ${S.cola.length}`;
+  $('bSimAnt').disabled = S.i === 0;
+  $('bSimSig').disabled = S.i === S.cola.length - 1;
+}
+$('bSimIni').onclick = () => {
+  S.cola = shuffle(PREG).slice(0, 20); S.i = 0; S.resp = S.cola.map(() => null);
+  S.fin = Date.now() + 30 * 60 * 1000; S.activo = true;
+  show('simRes', false); show('bSimIni', false); show('simNav', true);
+  clearInterval(S.timer); S.timer = setInterval(tick, 1000); tick(); pintarSim();
+};
+$('bSimSig').onclick = () => { guardarSim(); S.i++; pintarSim(); };
+$('bSimAnt').onclick = () => { guardarSim(); S.i--; pintarSim(); };
+$('bSimFin').onclick = () => { if (confirm('¿Terminar el simulacro ahora?')) terminarSim(); };
+function terminarSim() {
+  if (!S.activo) return;
+  guardarSim(); S.activo = false; clearInterval(S.timer);
+  show('simNav', false); $('simBox').innerHTML = ''; $('simProg').textContent = ''; $('simTimer').textContent = '';
+  $('bSimIni').textContent = 'Nuevo simulacro'; show('bSimIni', true);
+  let ok = 0;
+  const filas = S.cola.map((p, i) => {
+    const r = S.resp[i] || [];
+    const c = r.length > 0 && correcta(p, r);
+    if (c) ok++; else if (!est.falladas.includes(p.id)) est.falladas.push(p.id);
+    return `<li><p class="meta">${esc(p.tema)} · ${c ? 'Correcta' : 'Incorrecta o sin responder'}</p><p><b>${esc(p.texto)}</b></p><p><b>Respuesta:</b> ${esc(textoCorrecta(p))}</p><p>${esc(p.explicacion)}</p>${p.nota ? `<p class="nota">${esc(p.nota)}</p>` : ''}</li>`;
+  }).join('');
+  guardar(); stats();
+  $('simRes').innerHTML = `<h2>Resultado: ${ok}/${S.cola.length} (${Math.round(ok * 100 / S.cola.length)}%)</h2><ol class="res">${filas}</ol>`;
+  show('simRes', true);
+  $('simRes').scrollIntoView({behavior: 'smooth'});
+}
+
+// ---------- Banco de tarjetas ----------
+const tem = [...new Set(TARJ.map(t => t.tema))];
+$('fTarj').innerHTML = tem.map(t => `<option value="${esc(t)}">${esc(t)}</option>`).join('');
+let TL = [], TI = 0, TV = false;
+function filtrar() {
+  const q = norm($('buscar').value);
+  TL = TARJ.filter(t => q ? norm(t.frente + ' ' + t.dorso + ' ' + t.tema).includes(q) : t.tema === $('fTarj').value);
+  TI = 0; TV = false; pintarT();
+}
+function pintarT() {
+  const n = TL.length;
+  show('tVacio', !n); show('flash', n > 0);
+  $('tCont').textContent = n ? `${TI + 1} / ${n}` : '';
+  if (!n) return;
+  const t = TL[TI];
+  $('flash').className = 'flash' + (TV ? ' dorso' : '');
+  $('flash').innerHTML = `<span class="meta">${TV ? 'Respuesta' : 'Pregunta'} · ${esc(t.tema)}</span><br><span>${esc(TV ? t.dorso : t.frente)}</span><br><span class="meta">Pulsa para voltear</span>`;
+}
+$('flash').onclick = () => { TV = !TV; pintarT(); };
+$('tSig').onclick = () => { if (TL.length) { TI = (TI + 1) % TL.length; TV = false; pintarT(); } };
+$('tAnt').onclick = () => { if (TL.length) { TI = (TI - 1 + TL.length) % TL.length; TV = false; pintarT(); } };
+$('buscar').oninput = filtrar;
+$('fTarj').onchange = filtrar;
+
+// ---------- Mini práctica ----------
+let PI = 0;
+const normCmd = s => norm(s).replace(/^\S*\(config\)#\s*/, '').replace(/serial(?=\d)/g, 's').replace(/gigabitethernet/g, 'gi').replace(/\.$/, '');
+function pintarEj() {
+  const e = EJER[PI];
+  $('pCont').textContent = `Ejercicio ${PI + 1} de ${EJER.length}`;
+  $('pEsc').textContent = e.escenario;
+  $('pIns').textContent = e.instruccion;
+  $('pIn').value = ''; $('pFb').innerHTML = ''; $('pIn').focus();
+}
+function validarEj() {
+  const e = EJER[PI], v = normCmd($('pIn').value);
+  if (!v) { $('pFb').innerHTML = '<p class="nota">Escribe un comando primero.</p>'; return; }
+  const ok = e.aceptar.map(normCmd).includes(v);
+  $('pFb').innerHTML = `<div class="fb ${ok ? 'ok' : 'mal'}" role="status"><p><b>${ok ? '¡Correcto!' : 'Todavía no.'}</b> ${esc(e.explicacion)}</p></div>`;
+}
+$('pIn').addEventListener('keydown', e => { if (e.key === 'Enter') validarEj(); });
+$('pVal').onclick = validarEj;
+$('pSol').onclick = () => { $('pFb').innerHTML += `<div class="fb" role="status"><p>Solución: <code class="cmd">${esc(EJER[PI].solucion)}</code></p></div>`; };
+$('pSig').onclick = () => { PI = (PI + 1) % EJER.length; pintarEj(); };
+
+// ---------- Calculadora VLSM ----------
+function vlsm(h) {
+  let n = 2; while (2 ** n - 2 < h) n++;
+  const b = 2 ** n, m = 4294967295 - (b - 1);
+  return {pref: 32 - n, bloque: b, usables: b - 2, mask: [24, 16, 8, 0].map(s => Math.floor(m / 2 ** s) % 256).join('.')};
+}
+const LANS = [['LAN1', 58], ['LAN2', 53], ['LAN3', 28], ['LAN4', 21], ['LAN5', 12], ['LAN6', 10], ['LAN7', 5], ['LAN8', 4]];
+$('vTabla').innerHTML = `<table><caption>Parte 1 de direccionamiento (VLSM)</caption><thead><tr><th>Red</th><th>Hosts</th><th>Prefijo</th><th>Máscara</th><th>Salto de bloque</th></tr></thead><tbody>${LANS.map(([n, h]) => {
+  const r = vlsm(h);
+  return `<tr><td>${n}</td><td>${h}</td><td>/${r.pref}</td><td>${r.mask}</td><td>${r.bloque}</td></tr>`;
+}).join('')}</tbody></table>`;
+function calcular() {
+  const h = parseInt($('vHosts').value, 10);
+  if (!(h >= 1)) { $('vRes').innerHTML = '<p class="nota">Escribe un número de hosts mayor que 0.</p>'; return; }
+  const r = vlsm(h);
+  $('vRes').innerHTML = `<p>${h} hosts + red y broadcast = ${h + 2} direcciones.</p><p>Prefijo <b>/${r.pref}</b> · Máscara <b>${r.mask}</b> · Hosts usables <b>${r.usables}</b> · Salto de bloque <b>${r.bloque}</b> (cada subred empieza cada ${r.bloque} direcciones)</p>`;
+}
+$('vHosts').oninput = calcular;
+
+// Capturas
+const CAPS = [
+ ['p12-ad-estatica.jpg','P12 · AD de una ruta estática','<b>B. La AD es 1.</b> Conectada 0, estática 1, EIGRP 90, OSPF 110, RIP 120.'],
+ ['p14-ruta-calificada.jpg','P14 · Ruta estática completamente calificada (2 opciones)','<b>A y D:</b> IP del vecino de siguiente salto + ID de la interfaz de salida.'],
+ ['p07-puertos-ftp-web.jpg','P7 · Puertos destino','Servidor FTP: <b>21</b> · Servidor web: <b>80</b> (los puertos origen 1305 y 1099 son aleatorios del cliente).'],
+ ['p09-ftp-secuencia.jpg','P9 · Protocolo y aplicación (FTP) ⚠','FTP viaja sobre <b>TCP</b> (acuses y reenvío de segmentos): la respuesta es <b>TCP y FTP</b>. Las opciones visibles dicen "TPC y UDP", "UDP y TFPT", "UDP y FTP": mira si la D oculta es TCP y FTP; si no, consulta al profesor.'],
+ ['p18-tftp-secuencia.jpg','P18 · Protocolo y aplicación (TFTP)','<b>A. UDP y TFTP.</b> El servidor recibe los seis segmentos y no envía acuse de recibo: sin conexión = UDP.'],
+ ['p17-alternativas-transporte.jpg','P17 · Emparejar aplicación con transporte ⚠','Correcto: FTP, HTTP y SMTP → <b>TCP</b>; DNS y TFTP → <b>UDP</b>. La alternativa que dibuja exactamente eso parece la <b>D</b> (en la pantalla, opción B), pero la foto es borrosa: compruébalo.'],
+ ['topo-r0-tabla-rutas.jpg','Topología · ruta en la tabla de R0 ⚠','Marcada <b>D. R 30.0.0.0 [120/1] via 192.168.5.2, Serial0/0/0</b>: R1 (192.168.5.2) está conectado a 30.0.0.0/24, a 1 salto. Conviene confirmar con el profesor.'],
+ ['p10-ip-route-ad5.jpg','P10 · ip route 172.16.1.0 255.255.255.0 10.10.10.2 5 ⚠','Razonado, no confirmado: <b>D. Una ruta estática a 172.16.1.0/24</b> (AD 1 &lt; 5). EIGRP (90) y OSPF (110) no impiden que aparezca. Confirma con el profesor.'],
+ ['topo-rip-r3-network.jpg','Topología · network de RIPv2 en R3','<b>A. 192.168.6.0, 192.168.7.0, 50.0.0.0.</b> Solo las redes conectadas a R3, con la dirección de red classful (la 192.168.3.0 es de R4).'],
+ ['eval-parte1-direccionamiento.jpg','Evaluación · Parte 1: direccionamiento','VLSM por hosts: LAN1 58→/26, LAN2 53→/26, LAN3 28→/27, LAN4 21→/27, LAN5 12→/28, LAN6 10→/28, LAN7 5→/29, LAN8 4→/29. WAN: /30. HQ = primera dirección; en el enlace al ISP, HQ usa la segunda.'],
+ ['eval-pasos-2-5.jpg','Evaluación · Pasos 2 a 5','R1: <code>ip route 0.0.0.0 0.0.0.0 s0/0/1</code>; <code>router rip</code>, <code>version 2</code>, <code>no auto-summary</code>, <code>network</code> de las redes conectadas, <code>passive-interface</code> en la LAN, <code>default-information originate</code>, <code>copy run start</code>. R2 y R3 igual, sin default-information. Paso 5: activar HTTP en el web server y DNS en el DNS server.'],
+ ['pt-monterrico.png','Packet Tracer · Monterrico (hub-and-spoke)','Spokes: default hacia Monterrico (10.100.X.1). Monterrico: rutas a las LAN de las sedes + default 200.100.100.2. ISP: <code>ip route 10.0.0.0 255.0.0.0 200.100.100.1</code>.']
+];
+$('capGal').innerHTML = CAPS.map(c => `<figure style="margin:16px 0"><figcaption><b>${c[1]}</b></figcaption><img src="repaso-pc2-img/${c[0]}" alt="${c[1]}" loading="lazy" style="max-width:100%;border-radius:8px;border:1px solid var(--line);margin-top:6px"><details><summary style="cursor:pointer;color:var(--acc);margin-top:6px">Ver respuesta</summary><p>${c[2]}</p></details></figure>`).join('');
+
+// Inicio
+stats(); nuevaRonda(false); filtrar(); pintarEj(); calcular();
+</script>
+</body>
+</html>
