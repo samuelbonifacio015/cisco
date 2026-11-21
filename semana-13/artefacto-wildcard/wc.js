@@ -12,7 +12,7 @@
 
   /* 0 · lista de repaso del hub */
   (function(){
-    var L=['Calcular el wildcard de una red: 255.255.255.255 − máscara','Decir qué IP coinciden con una regla (bit por bit)','Escribir una ACL estándar y una extendida, con host y any','Aplicarla con ip access-group in/out y saber dónde ponerla','Explicar por qué importa el orden y qué hace el deny implícito','Verificar con show access-lists y editar con números de secuencia'];
+    var L=['Calcular el wildcard de una red: 255.255.255.255 − máscara','Decir qué IP coinciden con una regla (bit por bit)','Escribir una ACL estándar y una extendida, con host y any','Aplicarla con ip access-group in/out y saber dónde ponerla','Explicar por qué importa el orden y qué hace el deny implícito','Verificar con show access-lists y editar con números de secuencia','Detectar una ACL aplicada en la interfaz equivocada'];
     var ul=gid('ef-todo'),on=store.get('ef-todo',[]);
     ul.innerHTML=L.map(function(t,i){return '<li><label><input type="checkbox" data-i="'+i+'"'+(on.indexOf(i)>-1?' checked':'')+'><span>'+t+'</span></label></li>'}).join('');
     ul.addEventListener('change',function(){store.set('ef-todo',[].slice.call(ul.querySelectorAll('input:checked')).map(function(x){return +x.dataset.i}))});
@@ -98,45 +98,84 @@
     draw();
   })();
 
-  /* 5 · topología + ACL */
-  (function(){
-    var ACE=[{a:'deny',ip:[192,168,3,200],w:[0,0,0,0],t:'Bloquea solo al practicante (.200)'},{a:'permit',ip:[192,168,3,0],w:[0,0,0,255],t:'Deja pasar el resto de 192.168.3.0/24'},{a:'permit',ip:[192,168,4,0],w:[0,0,0,255],t:'Deja pasar toda 192.168.4.0/24'}];
-    var S=[{n:'Practicante .200',ip:[192,168,3,200],p:[[108,76],[210,76],[210,141],[390,141]]},{n:'PC .100',ip:[192,168,3,100],p:[[108,206],[210,206],[210,141],[390,141]]},{n:'Host .150',ip:[192,168,4,150],p:[[108,366],[390,366],[390,141]]}];
-    var TAIL=[[780,141],[1010,141],[1010,300]];
-    var aceBox=gid('wct-ace'),msg=gid('wct-msg'),dot=gid('wct-dot'),xs=gid('wct-x'),oks=gid('wct-ok'),tog=gid('wct-tog'),badge=gid('wct-badge'),bt=gid('wct-badget');
-    var on=true,tok=0;
-    aceBox.innerHTML=ACE.map(function(e,i){return '<div data-i="'+i+'"><i>'+(i+1)+'</i><span>'+e.a+' '+show(e.ip)+' '+show(e.w)+'<small>'+e.t+'</small></span></div>'}).join('')+'<div class="imp" data-i="3"><i>·</i><span>deny any (implícito)<small>Invisible: frena lo que ninguna fila aceptó</small></span></div>';
-    gid('wct-send').innerHTML=S.map(function(s,i){return '<button class="btn" type="button" data-s="'+i+'">'+s.n+'</button>'}).join('');
+  /* 5 · topología + ACL (estándar y extendida) */
+  var DEST={net:[200,48,225,130],lan4:[192,168,4,150]};
+  var SND=[{n:'Practicante .200',ip:[192,168,3,200],p:[[108,76],[210,76],[210,141],[390,141]]},{n:'PC .100',ip:[192,168,3,100],p:[[108,206],[210,206],[210,141],[390,141]]},{n:'Host .150',ip:[192,168,4,150],p:[[108,366],[390,366],[390,141]]}];
+  var TAIL={net:[[780,141],[1010,141],[1010,300]],lan4:[[390,366],[190,366]]};
+  function aceHit(e,k){return match(k.src,e.src,e.sw)&&(!e.dst||match(k.dst,e.dst,e.dw))&&(e.proto==='ip'||e.proto===k.proto)&&(e.port==null||e.port===k.port)}
+  function topo(P,cfg){
+    var g=function(s){return gid(P+'-'+s)};
+    var aceBox=g('ace'),msg=g('msg'),dot=g('dot'),xs=g('x'),oks=g('ok'),tog=g('tog'),badge=g('badge'),bt=g('badget'),pre=g('pre'),note=g('note');
+    var on=true,tok=0,st={d:'net',v:0,m:cfg.mode||cfg.fixed||'out'};
+    aceBox.innerHTML=cfg.ace.map(function(e,i){return '<div data-i="'+i+'"><i>'+(i+1)+'</i><span>'+e.txt+'<small>'+e.t+'</small></span></div>'}).join('')+'<div class="imp" data-i="x"><i>·</i><span>deny any (implícito)<small>Invisible: frena lo que ninguna fila aceptó</small></span></div>';
+    g('send').innerHTML=SND.map(function(s,i){return '<button class="btn" type="button" data-s="'+i+'">'+s.n+'</button>'}).join('');
+    function btns(id,list,key,cur){var el=g(id);if(!el)return;el.innerHTML=list.map(function(x){return '<button type="button" class="btn alt sm" data-'+key+'="'+x[0]+'" aria-pressed="'+(x[0]===cur)+'">'+x[1]+'</button>'}).join('')}
+    function ctrls(){
+      if(cfg.dest)btns('dest',[['net','Internet (servidor .130)'],['lan4','LAN 4 (192.168.4.0/24)']],'d',st.d);
+      if(cfg.mode)btns('mode',[['out','out en S0/0/0'],['in','in en Fa0/0']],'m',st.m);
+      if(cfg.svc)btns('svc',cfg.svc.map(function(x,i){return [i,x.n]}),'v',st.v);
+    }
+    function place(){
+      var inn=st.m==='in';
+      badge.setAttribute('x',inn?216:470);badge.setAttribute('y',inn?162:214);badge.setAttribute('width',inn?116:168);
+      bt.setAttribute('x',inn?274:554);bt.setAttribute('y',inn?187:239);
+      badge.style.fill=on?'var(--mint)':'var(--rose)';bt.textContent=on?cfg.name+' · '+(inn?'in':'out'):'sin ACL';
+      pre.textContent=cfg.pre.concat(inn?['Router1(config)#interface fa0/0','Router1(config-if)#ip access-group '+cfg.id+' in']:['Router1(config)#interface s0/0/0','Router1(config-if)#ip access-group '+cfg.id+' out']).join('\n');
+      if(note)note.textContent=cfg.notes[st.m];
+    }
     var rows=function(){return [].slice.call(aceBox.children)};
-    function clear(){rows().forEach(function(r){r.className=r.dataset.i==='3'?'imp':''});xs.style.opacity=0;oks.style.opacity=0;dot.style.fill='var(--lav-d)'}
+    function clear(){rows().forEach(function(r){r.className=r.dataset.i==='x'?'imp':''});xs.style.opacity=0;oks.style.opacity=0;dot.style.fill='var(--lav-d)'}
     function put(p){dot.setAttribute('cx',p[0]);dot.setAttribute('cy',p[1])}
     async function travel(pts,my){
       for(var i=0;i<pts.length-1;i++){var a=pts[i],b=pts[i+1],L=Math.hypot(b[0]-a[0],b[1]-a[1]),T=rm?0:L/0.6,t0=performance.now();
         while(true){if(my!==tok)return false;var k=T?Math.min(1,(performance.now()-t0)/T):1;put([a[0]+(b[0]-a[0])*k,a[1]+(b[1]-a[1])*k]);if(k>=1)break;await new Promise(requestAnimationFrame)}}
       return true;
     }
+    function reset(t){tok++;clear();dot.setAttribute('cx',-60);msg.className='verdict ok';msg.textContent=t||'Elige quién envía un paquete.'}
     async function run(i){
-      var my=++tok,s=S[i];clear();msg.className='verdict ok';msg.textContent='Enviando desde '+show(s.ip)+'…';
+      var s=SND[i],d=cfg.dest?st.d:'net',sv=cfg.svc?cfg.svc[st.v]:{proto:'ip',port:null,n:''};
+      if(i===2&&d==='lan4'){reset();msg.className='verdict bad';msg.innerHTML='Misma red<small>El host .150 ya está en la LAN 4: el paquete no pasa por el router.</small>';return}
+      var my=++tok,pk={src:s.ip,dst:DEST[d],proto:sv.proto,port:sv.port};clear();msg.className='verdict ok';msg.textContent='Enviando desde '+show(s.ip)+(sv.n?' · '+sv.n:'')+'…';
       if(!await travel(s.p,my))return;
-      var verdict=null;
-      if(on){
-        for(var j=0;j<ACE.length;j++){
+      var applies=st.m==='in'?s.ip[2]===3:d==='net',verdict;
+      if(!on)verdict={a:'permit',j:-1};
+      else if(!applies)verdict={a:'permit',j:-2};
+      else{
+        for(var j=0;j<cfg.ace.length;j++){
           var r=rows()[j];r.classList.add('on');await sleep(650);if(my!==tok)return;
-          if(match(s.ip,ACE[j].ip,ACE[j].w)){r.classList.remove('on');r.classList.add(ACE[j].a==='permit'?'ok':'no');verdict={a:ACE[j].a,j:j};
-            rows().slice(j+1).forEach(function(x){x.classList.add('skip')});break}
+          if(aceHit(cfg.ace[j],pk)){r.classList.remove('on');r.classList.add(cfg.ace[j].a==='permit'?'ok':'no');verdict={a:cfg.ace[j].a,j:j};rows().slice(j+1).forEach(function(x){x.classList.add('skip')});break}
           r.classList.remove('on');r.classList.add('skip');
         }
-        if(!verdict){rows()[3].classList.add('no');verdict={a:'deny',j:3}}
-      }else verdict={a:'permit',j:-1};
+        if(!verdict){rows()[cfg.ace.length].classList.add('no');verdict={a:'deny',j:cfg.ace.length}}
+      }
       if(verdict.a==='deny'){
         dot.style.fill='var(--rose-d)';xs.style.opacity=1;msg.className='verdict bad';
-        msg.innerHTML='✕ Se descarta en Router1<small>'+show(s.ip)+' coincide con la fila '+(verdict.j+1)+' ('+(verdict.j===3?'deny implícito':'deny')+'). El router ya no revisa más filas.</small>';return}
+        msg.innerHTML='✕ Se descarta en Router1<small>'+show(s.ip)+(sv.n?' · '+sv.n:'')+' coincide con la fila '+(verdict.j+1)+' ('+(verdict.j===cfg.ace.length?'deny implícito':'deny')+'). El router ya no revisa más filas.</small>';return}
       msg.className='verdict ok';
-      msg.innerHTML='✓ Pasa a Internet<small>'+(verdict.j<0?'La ACL está apagada: todos pasan.':show(s.ip)+' coincide con la fila '+(verdict.j+1)+' (permit).')+'</small>';
-      if(await travel([[390,141]].concat(TAIL),my))oks.style.opacity=1;
+      msg.innerHTML='✓ Pasa'+(d==='net'?' a Internet':' a la LAN 4')+'<small>'+(verdict.j===-1?'La ACL está apagada: todos pasan.':verdict.j===-2?'La ACL no se revisó: este paquete no cruza la interfaz donde está aplicada.':show(s.ip)+(sv.n?' · '+sv.n:'')+' coincide con la fila '+(verdict.j+1)+' (permit).')+'</small>';
+      oks.setAttribute('x',d==='net'?1010:290);oks.setAttribute('y',d==='net'?268:336);
+      if(await travel([[390,141]].concat(TAIL[d]),my))oks.style.opacity=1;
     }
-    gid('wct-send').addEventListener('click',function(e){var b=e.target.closest('[data-s]');if(b)run(+b.dataset.s)});
-    tog.addEventListener('click',function(){on=!on;tok++;clear();tog.setAttribute('aria-pressed',on);tog.textContent=on?'ACL activa':'ACL apagada';badge.style.fill=on?'var(--mint)':'var(--rose)';bt.textContent=on?'ACL 10 · out':'sin ACL';dot.setAttribute('cx',-60);msg.className='verdict ok';msg.textContent='Elige quién envía un paquete a Internet.'});
+    g('send').addEventListener('click',function(e){var b=e.target.closest('[data-s]');if(b)run(+b.dataset.s)});
+    ['dest','mode','svc'].forEach(function(id){var el=g(id);if(!el)return;el.addEventListener('click',function(e){var b=e.target.closest('button');if(!b)return;var k=Object.keys(b.dataset)[0];st[k]=k==='v'?+b.dataset[k]:b.dataset[k];ctrls();place();reset()})});
+    tog.addEventListener('click',function(){on=!on;tog.setAttribute('aria-pressed',on);tog.textContent=on?'ACL activa':'ACL apagada';place();reset()});
+    ctrls();place();
+  }
+  (function(){
+    var h=function(s,sw,d,dw){return {src:ip4(s),sw:ip4(sw),dst:d?ip4(d):null,dw:dw?ip4(dw):null}};
+    var a=h('192.168.3.200','0.0.0.0'),b=h('192.168.3.0','0.0.0.255'),c=h('192.168.4.0','0.0.0.255');
+    topo('wct',{id:'10',name:'ACL 10',mode:'out',dest:true,
+      ace:[Object.assign({a:'deny',proto:'ip',txt:'access-list 10 deny 192.168.3.200 0.0.0.0',t:'Bloquea solo al practicante (.200)'},a),Object.assign({a:'permit',proto:'ip',txt:'access-list 10 permit 192.168.3.0 0.0.0.255',t:'Deja pasar el resto de 192.168.3.0/24'},b),Object.assign({a:'permit',proto:'ip',txt:'access-list 10 permit 192.168.4.0 0.0.0.255',t:'Deja pasar toda 192.168.4.0/24'},c)],
+      pre:['Router1(config)#access-list 10 deny 192.168.3.200 0.0.0.0','Router1(config)#access-list 10 permit 192.168.3.0 0.0.0.255','Router1(config)#access-list 10 permit 192.168.4.0 0.0.0.255'],
+      notes:{out:'Out en S0/0/0 filtra lo que sale hacia Internet; lo que va a la LAN 4 no pasa por esa interfaz. Ojo: el PPT escribe “in” en S0/0/0, pero ahí se filtra lo que llega de Internet. Para esta regla sirve out en S0/0/0 o in en Fa0/0 (confírmalo con tu profe).',in:'In en Fa0/0 mira todo lo que entra desde la LAN 3, vaya a donde vaya: el practicante queda sin Internet y también sin LAN 4. Por eso la estándar va cerca del destino.'}});
+    var box=gid('wce-svgbox');
+    if(box){var sv=document.querySelector('#wc-topo svg').cloneNode(true);[].slice.call(sv.querySelectorAll('[id]')).forEach(function(n){n.id=n.id.replace('wct-','wce-')});sv.querySelectorAll('title').forEach(function(t){t.remove()});box.appendChild(sv)}
+    topo('wce',{id:'101',name:'ACL 101',mode:null,fixed:'in',
+      svc:[{n:'Web (HTTP 80)',proto:'tcp',port:80},{n:'Web segura (HTTPS 443)',proto:'tcp',port:443},{n:'Ping (ICMP)',proto:'icmp',port:null},{n:'DNS (UDP 53)',proto:'udp',port:53}],
+      ace:[Object.assign({a:'deny',proto:'tcp',port:80,txt:'access-list 101 deny tcp host 192.168.3.200 host 200.48.225.130 eq 80',t:'Solo la web del servidor, solo para el practicante'},h('192.168.3.200','0.0.0.0','200.48.225.130','0.0.0.0')),Object.assign({a:'permit',proto:'ip',port:null,txt:'access-list 101 permit ip any any',t:'Todo lo demás pasa: ping, DNS, HTTPS…'},h('0.0.0.0','255.255.255.255'))],
+      pre:['Router1(config)#access-list 101 deny tcp 192.168.3.200 0.0.0.0 200.48.225.130 0.0.0.0 eq 80','Router1(config)#access-list 101 permit ip any any'],
+      notes:{in:'Extendida cerca del origen: in en Fa0/0. El host .150 entra por Fa0/1, así que esta ACL ni lo mira. Sin el permit final, el deny implícito cortaría hasta el ping.'}});
+    var o=gid('wce-msg');
   })();
 
   /* 6 · orden de filas */
@@ -267,6 +306,48 @@
     }
     f.forEach(function(k){$i(k).addEventListener('input',render);$i(k).addEventListener('change',render)});
     render();
+  })();
+
+  /* 10 · caza la interfaz equivocada */
+  (function(){
+    var box=gid('wcr-svgbox');if(!box)return;
+    var sv=document.querySelector('#wc-topo svg').cloneNode(true);
+    [].slice.call(sv.querySelectorAll('[id]')).forEach(function(n){n.remove()});
+    var NS='http://www.w3.org/2000/svg',mk=document.createElementNS(NS,'g');mk.id='wcr-m';sv.appendChild(mk);box.appendChild(sv);
+    var POS={'fa0/0':[330,141,'Fa0/0'],'fa0/1':[390,186,'Fa0/1'],'s0/0/0':[450,141,'S0/0/0']};
+    var STD10='access-list 10 deny host 192.168.3.200\naccess-list 10 permit any',STD20='access-list 20 deny host 192.168.3.200\naccess-list 20 permit any',EXT='access-list 101 deny tcp host 192.168.3.200 host 200.48.225.130 eq 80\naccess-list 101 permit ip any any';
+    var G1='El practicante (192.168.3.200) no debe llegar a Internet.',G2='El practicante no puede usar la web del servidor 200.48.225.130, pero conserva ping y lo demás.',G3='El practicante no debe llegar al host 192.168.4.150 (LAN 4), pero sí a Internet.';
+    var OP=['Bien aplicada','Interfaz o sentido equivocado','Funciona, pero en un lugar poco conveniente'];
+    var Q=[
+      {g:G1,t:'Estándar',c:STD10,i:'fa0/1',d:'in',a:1,w:'Fa0/1 es la LAN 4. El practicante entra por Fa0/0: su tráfico nunca pasa por Fa0/1.'},
+      {g:G1,t:'Estándar',c:STD10,i:'s0/0/0',d:'out',a:0,w:'Out en S0/0/0 revisa todo lo que sale hacia Internet. Cerca del destino, como pide la estándar.'},
+      {g:G1,t:'Estándar',c:STD10,i:'s0/0/0',d:'in',a:1,w:'In en S0/0/0 revisa lo que llega desde Internet: su origen nunca es 192.168.3.200. Ojo: el PPT (diapositiva 24) lo escribe con in. Para esta regla va out en S0/0/0 o in en Fa0/0; confírmalo con tu profe.'},
+      {g:G2,t:'Extendida',c:EXT,i:'fa0/0',d:'in',a:0,w:'In en Fa0/0 la revisa apenas el paquete entra al router. Extendida cerca del origen.'},
+      {g:G2,t:'Extendida',c:EXT,i:'fa0/0',d:'out',a:1,w:'Out en Fa0/0 revisa lo que sale hacia la LAN 3, es decir, lo que recibe el practicante, no lo que él envía.'},
+      {g:G2,t:'Extendida',c:EXT,i:'s0/0/0',d:'out',a:2,w:'Sí bloquea, pero el paquete ya cruzó el router. La extendida va cerca del origen para no gastar red de más.'},
+      {g:G3,t:'Estándar',c:STD20,i:'fa0/1',d:'out',a:0,w:'Out en Fa0/1 revisa lo que sale hacia la LAN 4. Cerca del destino, y no afecta lo que va a Internet.'},
+      {g:G3,t:'Estándar',c:STD20,i:'fa0/0',d:'in',a:2,w:'Pararías al practicante, pero también le quitarías Internet: la estándar no distingue destinos. Por eso va cerca del destino.'}
+    ];
+    var st=store.get('wc-err',{ok:0,n:0,k:0}),q,done,last=-1;
+    var cfg=gid('wcr-cfg'),opts=gid('wcr-opts'),v=gid('wcr-v');
+    function stats(){gid('wcr-s').textContent=st.ok+'/'+st.n;gid('wcr-k').textContent=st.k}
+    function mark(p,d){
+      var x=p[0],y=p[1],up=d==='in';
+      mk.innerHTML='<circle cx="'+x+'" cy="'+y+'" r="22" style="fill:var(--sun);stroke:var(--ink);stroke-width:4"><animate attributeName="r" values="22;28;22" dur="1.4s" repeatCount="indefinite"/></circle><text x="'+x+'" y="'+(y+6)+'" text-anchor="middle" style="font-size:17px;font-weight:800;fill:var(--ink)">'+d.toUpperCase()+'</text><text x="'+x+'" y="'+(y-34)+'" text-anchor="middle" style="font-size:18px;font-weight:800;fill:var(--ink)">'+p[2]+'</text>';
+    }
+    function next(){
+      var i;do{i=Math.floor(Math.random()*Q.length)}while(i===last&&Q.length>1);last=i;q=Q[i];done=false;v.hidden=true;
+      cfg.innerHTML=q.g+'<small>'+q.t+'</small><pre style="margin-top:.5rem;font-size:.9rem">'+q.c+'\ninterface '+q.i+'\n ip access-group '+q.c.split(' ')[1]+' '+q.d+'</pre>';
+      mark(POS[q.i],q.d);
+      opts.innerHTML=OP.map(function(o,k){return '<button type="button" class="btn alt" data-k="'+k+'">'+o+'</button>'}).join('');
+    }
+    opts.addEventListener('click',function(e){
+      var b=e.target.closest('[data-k]');if(!b||done)return;done=true;var k=+b.dataset.k,ok=k===q.a;
+      st.n++;if(ok){st.ok++;st.k++}else st.k=0;store.set('wc-err',st);stats();
+      [].slice.call(opts.children).forEach(function(x,i){x.disabled=true;if(i===q.a)x.classList.remove('alt')});
+      v.hidden=false;v.className='verdict '+(ok?'ok':'bad');v.innerHTML=(ok?'✓ Correcto: ':'✕ Era: ')+OP[q.a]+'<small>'+q.w+'</small>';
+    });
+    gid('wcr-next').addEventListener('click',next);stats();next();
   })();
 })();
 </script>
