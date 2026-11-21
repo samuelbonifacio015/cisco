@@ -1,13 +1,14 @@
 
 /* S13 · ACL y Wildcard · alta en el índice (aditivo) */
 (function(){
-  META.units.push({"k":"S13","label":"S13 · ACL y Wildcard","badge":"S13","theme":"rose"});
+  META.units.push({"k":"S13","label":"Repaso Examen Final · ACL","badge":"EF","theme":"rose"});
   [{"id":"wc-base","unit":"S13","title":"Wildcard: bits, resta y 4 casos","status":"curso"},
    {"id":"wc-acl","unit":"S13","title":"ACL en la topología y orden de filas","status":"curso"},
    {"id":"wc-quiz","unit":"S13","title":"Práctica: ¿cuáles coinciden?","status":"curso"},{"id":"wc-cmd","unit":"S13","title":"Comandos de ACL y armador","status":"curso"},{"id":"wc-notas","unit":"S13","title":"Mis apuntes de ACL","status":"curso"}].forEach(function(t){META.topics.push(t)});
   [["u-acl","rose",null,null],["wc-idea","mint","wc-base","S13"],["wc-bits","sky","wc-base","S13"],["wc-calc","lav","wc-base","S13"],["wc-tipos","peach","wc-base","S13"],["wc-topo","rose","wc-acl","S13"],["wc-orden","sun","wc-acl","S13"],["wc-cmd","peach","wc-cmd","S13"],["wc-armador","sky","wc-cmd","S13"],["wc-quiz","mint","wc-quiz","S13"],["wc-notas","sun","wc-notas","S13"]]
    .forEach(function(s){META.slides.push({"id":s[0],"theme":s[1],"topic":s[2],"unit":s[3]})});
   Object.assign(META.text,{
+    "u-acl":"repaso examen final ef acl wildcard ruta pasos",
     "wc-idea":"wildcard comodín máscara inversa bit 0 igual 1 ignorar octeto acl semana 13",
     "wc-bits":"wildcard bit por bit coincide ip regla rango binario acl comodín host subred",
     "wc-calc":"wildcard 255.255.255.255 menos máscara de subred calcular acl access-list permit prefijo",

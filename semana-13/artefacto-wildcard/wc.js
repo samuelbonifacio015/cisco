@@ -10,6 +10,14 @@
   var gid=function(i){return document.getElementById(i)};
   var pop=function(w){return w.reduce(function(a,b){return a+bin(b).split('1').length-1},0)};
 
+  /* 0 · lista de repaso del hub */
+  (function(){
+    var L=['Calcular el wildcard de una red: 255.255.255.255 − máscara','Decir qué IP coinciden con una regla (bit por bit)','Escribir una ACL estándar y una extendida, con host y any','Aplicarla con ip access-group in/out y saber dónde ponerla','Explicar por qué importa el orden y qué hace el deny implícito','Verificar con show access-lists y editar con números de secuencia'];
+    var ul=gid('ef-todo'),on=store.get('ef-todo',[]);
+    ul.innerHTML=L.map(function(t,i){return '<li><label><input type="checkbox" data-i="'+i+'"'+(on.indexOf(i)>-1?' checked':'')+'><span>'+t+'</span></label></li>'}).join('');
+    ul.addEventListener('change',function(){store.set('ef-todo',[].slice.call(ul.querySelectorAll('input:checked')).map(function(x){return +x.dataset.i}))});
+  })();
+
   /* 1 · idea: octetos tocables */
   (function(){
     var IP=[192,168,10,120],w=[0,0,0,255],row=gid('wci-row'),out=gid('wci-out');
