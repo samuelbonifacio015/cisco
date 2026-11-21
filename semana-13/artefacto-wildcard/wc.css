@@ -1,6 +1,6 @@
 
 /* ===== S13 · ACL y Wildcard (módulo aditivo) ===== */
-.grp[data-k=S13]{--a:var(--rose);--ad:var(--rose-d)}
+.grp[data-k=ACL]{--a:var(--rose);--ad:var(--rose-d)}
 .wc{display:flex;flex-direction:column;gap:1rem;min-width:0}
 .wc-lead{font-size:1.5rem;line-height:1.25;max-width:50ch;font-weight:700;margin:0}
 .wc-k{display:inline-block;border-radius:99px;padding:0 .7rem;font-weight:800}
