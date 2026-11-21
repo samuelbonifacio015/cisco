@@ -4,8 +4,8 @@
   META.units.push({"k":"S13","label":"S13 · ACL y Wildcard","badge":"S13","theme":"rose"});
   [{"id":"wc-base","unit":"S13","title":"Wildcard: bits, resta y 4 casos","status":"curso"},
    {"id":"wc-acl","unit":"S13","title":"ACL en la topología y orden de filas","status":"curso"},
-   {"id":"wc-quiz","unit":"S13","title":"Práctica: ¿cuáles coinciden?","status":"curso"}].forEach(function(t){META.topics.push(t)});
-  [["u-acl","rose",null,null],["wc-idea","mint","wc-base","S13"],["wc-bits","sky","wc-base","S13"],["wc-calc","lav","wc-base","S13"],["wc-tipos","peach","wc-base","S13"],["wc-topo","rose","wc-acl","S13"],["wc-orden","sun","wc-acl","S13"],["wc-quiz","mint","wc-quiz","S13"]]
+   {"id":"wc-quiz","unit":"S13","title":"Práctica: ¿cuáles coinciden?","status":"curso"},{"id":"wc-cmd","unit":"S13","title":"Comandos de ACL y armador","status":"curso"},{"id":"wc-notas","unit":"S13","title":"Mis apuntes de ACL","status":"curso"}].forEach(function(t){META.topics.push(t)});
+  [["u-acl","rose",null,null],["wc-idea","mint","wc-base","S13"],["wc-bits","sky","wc-base","S13"],["wc-calc","lav","wc-base","S13"],["wc-tipos","peach","wc-base","S13"],["wc-topo","rose","wc-acl","S13"],["wc-orden","sun","wc-acl","S13"],["wc-cmd","peach","wc-cmd","S13"],["wc-armador","sky","wc-cmd","S13"],["wc-quiz","mint","wc-quiz","S13"],["wc-notas","sun","wc-notas","S13"]]
    .forEach(function(s){META.slides.push({"id":s[0],"theme":s[1],"topic":s[2],"unit":s[3]})});
   Object.assign(META.text,{
     "wc-idea":"wildcard comodín máscara inversa bit 0 igual 1 ignorar octeto acl semana 13",
@@ -14,6 +14,9 @@
     "wc-tipos":"wildcard host any 0.0.0.0 0.0.0.255 0.0.15.255 255.255.255.255 palabra clave rango acl",
     "wc-topo":"acl topología practicante internet access-list 10 deny permit ip access-group out in router1 serial deny implícito",
     "wc-orden":"acl estándar lógica orden filas primera coincidencia deny implícito access-list 2",
+    "wc-cmd":"comandos acl access-list access-group ip access-list standard extended nombre vty access-class permit deny any host remark established log eq range show access-lists editar secuencia no access-list armador",
+    "wc-armador":"armador comando acl extendida estándar host any wildcard puerto eq versión larga corta",
+    "wc-notas":"apuntes cuaderno fotos acl estándar extendida rango bits 128 143 /25 0.0.0.127 semana 15 exposición",
     "wc-quiz":"práctica wildcard cuáles ip coinciden quiz ejercicios binario acl"
   });
 })();

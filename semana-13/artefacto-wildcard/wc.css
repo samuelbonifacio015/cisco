@@ -58,3 +58,4 @@ button.wc-ob:hover{transform:translateY(-.25rem);border-color:var(--ink)}
 .wc-rule{background:var(--sky);border-radius:1.8rem 1.8rem 1.8rem 4rem;padding:.9rem 1.4rem;font:800 clamp(1.4rem,2.8vw,2.4rem)/1.15 var(--mono);overflow-wrap:anywhere}
 .wc-rule small{display:block;font:600 1rem "Asap",system-ui,sans-serif;color:var(--ink2);margin-top:.2rem}
 @media (max-width:900px){.wc-two,.wc-sim{grid-template-columns:1fr}.wc-grid,.wc-sub .row3{grid-template-columns:1fr;gap:.25rem}.wc-oc{flex-wrap:wrap}.wc-oc>div{flex:1 1 45%}}
+.wc .box p,.wc .box li{font-size:1.15rem;line-height:1.35;margin:0}.wc .box ul{margin:0;padding-left:1.4rem}.wc .box li+li{margin-top:.35rem}.wc .box pre{font-size:.95rem}.wc .box .pre-wrap+p{margin-top:.2rem}

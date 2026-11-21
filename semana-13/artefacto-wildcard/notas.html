@@ -1,0 +1,16 @@
+
+<section class="slide t-sun" id="wc-notas" data-theme="sun" data-topic="wc-notas" aria-roledescription="diapositiva" aria-label="Mis apuntes de ACL"><div class="zone"><b>S13</b> Mis apuntes</div><div class="zrow"><span class="pill">En curso</span><label class="mark"><input type="checkbox" data-done="wc-notas"> Repasado</label></div><h2>Mis apuntes de clase, ordenados</h2><div class="wc"><p class="note">Pasados en limpio desde tus fotos. Lo marcado con <span class="wc-k g">?</span> no se leía bien: revísalo contra tu cuaderno.</p><div class="grid2">
+<div class="box c-mint"><h4>1 · ACL estándar: la receta</h4><pre>access-list [número] (deny | permit | remark) [IP origen] [wildcard]
+access-list 69 deny 192.168.10.20 0.0.0.15
+access-list 4  deny   192.168.3.200 0.0.0.0
+access-list 4  permit any
+ip access-group [acl-number] in|out</pre><p>El wildcard de la estándar es el del <b>origen (source)</b>. <span class="wc-k g">?</span> Escribiste “ip access (acl-number)”: el comando completo es <code>ip access-group</code>, dentro de la interfaz.</p></div>
+<div class="box c-sky"><h4>2 · Wildcard rápido</h4><ul><li><code>255.255.255.255</code> aplica para <b>todos</b> (es <code>any</code>).</li><li>Wildcard en base a la red: <b>/25 = 0.0.0.127</b>.</li><li>Dibujo: red <code>192.168.10.128/25</code>, router en <code>.129</code>, host <code>.150</code>.</li></ul><p>Fórmula: 255.255.255.255 − máscara. Para /25 (255.255.255.128) da 0.0.0.127.</p></div>
+<div class="box c-lav"><h4>3 · Hallar el rango con bits</h4><pre>deny 192.168.20.140  0.0.0.15
+w : 0000 1111   (los 4 primeros bits se comparan)
+IP: 1000 1100
+→ 192.168.20.1000xxxx
+128 + 15 = 143   →  (128 – 143)</pre><p>Los bits que se comparan quedan fijos; los demás (x) recorren todo: de 128 a 143. Pruébalo en “Bit por bit” con el botón “Apunte .140”.</p></div>
+<div class="box c-rose"><h4>4 · ACL extendida</h4><pre>access-list 103 permit ip any any</pre><ul><li><code>permit ip any any</code> es para <b>TODOS</b>.</li><li>La extendida va <b>siempre cerca del origen</b>.</li><li><span class="wc-k g">?</span> “wildcard extendido: SIEMPRE … IN” (la foto tiene un tachón): en el PPT el ejemplo extendido usa <code>ip access-group 101 in</code>.</li><li><span class="wc-k g">?</span> “Teoría: access-list por interfaz que NO ES …” quedó cortada.</li></ul></div>
+<div class="box c-peach"><h4>5 · Agenda y temas pendientes</h4><ul><li>Semana 15: jueves, exposiciones de 3 grupos y exposición individual (jueves o viernes).</li><li>Temas anotados: IPv6, sumarización, route, access-list.</li></ul></div>
+</div><details class="ex"><summary>Ver las 3 fotos originales</summary><div class="grid2"><img src="data:image/jpeg;base64,@@N1@@" alt="Apunte: receta de ACL estándar, access-list 69 y access-list 4, wildcard /25 = 0.0.0.127" style="border-radius:1.2rem"><img src="data:image/jpeg;base64,@@N2@@" alt="Apunte: deny 192.168.20.140 0.0.0.15, bits 0000 1111 contra 1000 1100, rango 128 a 143" style="border-radius:1.2rem"><img src="data:image/jpeg;base64,@@N3@@" alt="Apunte: permitir en extendida, access-list 103 permit ip any any, extendida cerca del origen" style="border-radius:1.2rem"></div></details></div></section>
