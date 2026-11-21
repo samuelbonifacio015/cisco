@@ -169,7 +169,7 @@
       pre:['Router1(config)#access-list 10 deny 192.168.3.200 0.0.0.0','Router1(config)#access-list 10 permit 192.168.3.0 0.0.0.255','Router1(config)#access-list 10 permit 192.168.4.0 0.0.0.255'],
       notes:{out:'Out en S0/0/0 filtra lo que sale hacia Internet; lo que va a la LAN 4 no pasa por esa interfaz. Ojo: el PPT escribe “in” en S0/0/0, pero ahí se filtra lo que llega de Internet. Para esta regla sirve out en S0/0/0 o in en Fa0/0 (confírmalo con tu profe).',in:'In en Fa0/0 mira todo lo que entra desde la LAN 3, vaya a donde vaya: el practicante queda sin Internet y también sin LAN 4. Por eso la estándar va cerca del destino.'}});
     var box=gid('wce-svgbox');
-    if(box){var sv=document.querySelector('#wc-topo svg').cloneNode(true);[].slice.call(sv.querySelectorAll('[id]')).forEach(function(n){n.id=n.id.replace('wct-','wce-')});sv.querySelectorAll('title').forEach(function(t){t.remove()});box.appendChild(sv)}
+    if(box){box.innerHTML=document.querySelector('#wc-topo svg').outerHTML.replace(/id="wct-/g,'id="wce-')}
     topo('wce',{id:'101',name:'ACL 101',mode:null,fixed:'in',
       svc:[{n:'Web (HTTP 80)',proto:'tcp',port:80},{n:'Web segura (HTTPS 443)',proto:'tcp',port:443},{n:'Ping (ICMP)',proto:'icmp',port:null},{n:'DNS (UDP 53)',proto:'udp',port:53}],
       ace:[Object.assign({a:'deny',proto:'tcp',port:80,txt:'access-list 101 deny tcp host 192.168.3.200 host 200.48.225.130 eq 80',t:'Solo la web del servidor, solo para el practicante'},h('192.168.3.200','0.0.0.0','200.48.225.130','0.0.0.0')),Object.assign({a:'permit',proto:'ip',port:null,txt:'access-list 101 permit ip any any',t:'Todo lo demás pasa: ping, DNS, HTTPS…'},h('0.0.0.0','255.255.255.255'))],
@@ -311,10 +311,9 @@
   /* 10 · caza la interfaz equivocada */
   (function(){
     var box=gid('wcr-svgbox');if(!box)return;
-    var sv=document.querySelector('#wc-topo svg').cloneNode(true);
-    [].slice.call(sv.querySelectorAll('[id]')).forEach(function(n){n.remove()});
-    var NS='http://www.w3.org/2000/svg',mk=document.createElementNS(NS,'g');mk.id='wcr-m';sv.appendChild(mk);box.appendChild(sv);
-    var POS={'fa0/0':[330,141,'Fa0/0'],'fa0/1':[390,186,'Fa0/1'],'s0/0/0':[450,141,'S0/0/0']};
+    box.innerHTML=document.querySelector('#wc-topo svg').outerHTML.replace(/<(rect|circle|text)[^>]*id="wct-(badge|badget|x|ok|dot)"[^>]*?(\/>|>[^<]*<\/(?:text|rect|circle)>)/g,'').replace(/ id="[^"]*"/g,'').replace('</svg>','<g id="wcr-m"></g></svg>');
+    var mk=gid('wcr-m');
+    var POS={'fa0/0':[330,141,'Fa0/0'],'fa0/1':[390,192,'Fa0/1'],'s0/0/0':[450,141,'S0/0/0']};
     var STD10='access-list 10 deny host 192.168.3.200\naccess-list 10 permit any',STD20='access-list 20 deny host 192.168.3.200\naccess-list 20 permit any',EXT='access-list 101 deny tcp host 192.168.3.200 host 200.48.225.130 eq 80\naccess-list 101 permit ip any any';
     var G1='El practicante (192.168.3.200) no debe llegar a Internet.',G2='El practicante no puede usar la web del servidor 200.48.225.130, pero conserva ping y lo demás.',G3='El practicante no debe llegar al host 192.168.4.150 (LAN 4), pero sí a Internet.';
     var OP=['Bien aplicada','Interfaz o sentido equivocado','Funciona, pero en un lugar poco conveniente'];
@@ -333,7 +332,7 @@
     function stats(){gid('wcr-s').textContent=st.ok+'/'+st.n;gid('wcr-k').textContent=st.k}
     function mark(p,d){
       var x=p[0],y=p[1],up=d==='in';
-      mk.innerHTML='<circle cx="'+x+'" cy="'+y+'" r="22" style="fill:var(--sun);stroke:var(--ink);stroke-width:4"><animate attributeName="r" values="22;28;22" dur="1.4s" repeatCount="indefinite"/></circle><text x="'+x+'" y="'+(y+6)+'" text-anchor="middle" style="font-size:17px;font-weight:800;fill:var(--ink)">'+d.toUpperCase()+'</text><text x="'+x+'" y="'+(y-34)+'" text-anchor="middle" style="font-size:18px;font-weight:800;fill:var(--ink)">'+p[2]+'</text>';
+      mk.innerHTML='<circle cx="'+x+'" cy="'+y+'" r="21" style="fill:var(--sun);stroke:var(--ink);stroke-width:4"><animate attributeName="r" values="21;25;21" dur="1.4s" repeatCount="indefinite"/></circle><text x="'+x+'" y="'+(y+6)+'" text-anchor="middle" style="font-size:16px;font-weight:800;fill:var(--ink)">'+d.toUpperCase()+'</text>';
     }
     function next(){
       var i;do{i=Math.floor(Math.random()*Q.length)}while(i===last&&Q.length>1);last=i;q=Q[i];done=false;v.hidden=true;

@@ -31,10 +31,10 @@ button.wc-ob:hover{transform:translateY(-.25rem);border-color:var(--ink)}
 .wc-sub .row3{display:grid;grid-template-columns:7rem 1fr;gap:.5rem .8rem;align-items:center}
 .wc-sub .row3>b{font-size:1rem;font-weight:800}
 .wc-sub .wc-oct4{gap:.4rem}.wc-sub .wc-ob{padding:.4rem .3rem;border-radius:1rem;flex:1 1 4rem;min-width:3.5rem}.wc-sub .wc-ob b{font-size:clamp(1.4rem,3vw,2.6rem)}
-.wc-tipos{display:grid;grid-template-columns:repeat(auto-fit,minmax(14rem,1fr));gap:1rem}
+.wc-tipos{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,14rem),1fr));gap:1rem}.wc-tp{min-width:0}.wc-notes{grid-template-columns:repeat(auto-fit,minmax(min(100%,26rem),1fr))}
 .wc-tp{background:var(--c);border-radius:1.8rem;padding:1rem 1.2rem;display:flex;flex-direction:column;gap:.5rem;text-align:left;border:.24rem solid transparent;transition:transform .2s,border-color .2s}
 .wc-tp:hover{transform:translateY(-.2rem)}.wc-tp[aria-pressed=true]{border-color:var(--ink);transform:translateY(-.3rem)}
-.wc-tp .w{font:800 clamp(1.7rem,3vw,2.6rem)/1 var(--mono);letter-spacing:-.03em}
+.wc-tp .w{font:800 clamp(1.1rem,1.8vw,2.2rem)/1 var(--mono);letter-spacing:-.03em;overflow-wrap:anywhere}
 .wc-tp .h{font-weight:800;font-size:1.5rem;line-height:1.05;color:var(--cd)}
 .wc-strip{display:grid;grid-template-columns:repeat(32,1fr);gap:1px}
 .wc-strip i{height:.8rem;border-radius:2px;background:var(--mint-d)}.wc-strip i.g{background:var(--sun-d)}
